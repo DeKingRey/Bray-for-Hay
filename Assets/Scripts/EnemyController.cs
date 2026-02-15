@@ -5,34 +5,58 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
-    private enum PathType
-    {
-        Loop,
-        ReverseWhenComplete
-    }
-
-    [Header("Pathfinding")]
-    [SerializeField] private Transform[] waypoints;
-    [SerializeField] private PathType pathType;
+    [SerializeField] private float waitTime;
+    [SerializeField] private float knockbackRecoveryThreshold;
 
     private NavMeshAgent agent;
-    private int currentWaypointIndex = 0;
-    private int direction = 1;
+    private EnemyPath path;
+    private Rigidbody rb;
+
+    private float elapsedTime = 0f;
+    private bool isKnocked = false;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        path = GetComponent<EnemyPath>();
+        rb = GetComponent<Rigidbody>();
+
+        agent.destination = path.GetCurrentWaypoint();
     }
 
     void Update()
     {
-        
+        if (isKnocked)
+        {
+            if (rb.velocity.magnitude <= knockbackRecoveryThreshold) RecoverFromKnockback();
+            else return;
+        }
+
+        if (agent.remainingDistance <= 0.1f)
+        {
+            elapsedTime += Time.deltaTime;
+            if (elapsedTime >= waitTime)
+            {
+                waitTime = 0f;
+                agent.destination = path.GetNextWaypoint();
+            }
+        }
     }
 
-    private int GetNextWaypointIndex()
+    public void ApplyKnockback()
     {
-        currentWaypointIndex += direction;
+        isKnocked = true;
+        agent.enabled = false;
+    }
 
-        if (pathType == PathType.Loop) index %= waypoints.Length;
+    private void RecoverFromKnockback()
+    {
+        isKnocked = false;
+
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        agent.enabled = true;
+        agent.Warp(transform.position); // Tells agent new position
     }
 }

@@ -25,6 +25,12 @@ public class VoiceForceReceiver : MonoBehaviour
             float volumeForceMultiplier = volumeDetector.VolumeFromMicrophone() * volumeDetector.micMultiplier;
             if (volumeForceMultiplier < volumeDetector.minVolume) volumeForceMultiplier = 0;
 
+            if (gameObject.CompareTag("Enemy"))
+            {
+                EnemyController enemy = GetComponent<EnemyController>();
+                enemy.ApplyKnockback();
+            }
+
             rb.AddForce(forceDirection * volumeForceMultiplier / sourceDistance, ForceMode.Impulse);
         }
     }
