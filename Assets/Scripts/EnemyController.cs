@@ -8,6 +8,8 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float waitTime;
     [SerializeField] private float knockbackRecoveryThreshold;
 
+    [SerializeField] protected LayerMask playerLayer;
+
     private NavMeshAgent agent;
     private EnemyPath path;
     private Rigidbody rb;

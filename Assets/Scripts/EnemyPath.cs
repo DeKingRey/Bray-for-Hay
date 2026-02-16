@@ -19,7 +19,10 @@ public class EnemyPath : MonoBehaviour
 
     public Vector3 GetCurrentWaypoint()
     {
-        return waypoints[currentIndex].position;
+        Vector3 offset = Random.insideUnitSphere * 1.5f;
+        offset.y = 0f;
+
+        return waypoints[currentIndex].position + offset;
     }
 
     public Vector3 GetNextWaypoint()
@@ -27,7 +30,10 @@ public class EnemyPath : MonoBehaviour
         if (waypoints.Length == 0) return transform.position;
 
         int index = GetNextWaypointIndex();
-        Vector3 nextWaypoint = waypoints[index].position;
+        Vector3 offset = Random.insideUnitSphere * 1.5f;
+        offset.y = 0f;
+
+        Vector3 nextWaypoint = waypoints[index].position + offset;
 
         return nextWaypoint;
     }
