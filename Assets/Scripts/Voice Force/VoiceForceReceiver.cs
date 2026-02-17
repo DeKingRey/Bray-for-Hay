@@ -6,12 +6,15 @@ public class VoiceForceReceiver : MonoBehaviour
 {
     private Rigidbody rb;
     private VolumeDetector volumeDetector;
+    private EnemyController enemy;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
 
         volumeDetector = FindObjectOfType<VolumeDetector>();
+
+        enemy = GetComponent<EnemyController>();
     }
 
     void OnTriggerStay(Collider other)
@@ -25,13 +28,16 @@ public class VoiceForceReceiver : MonoBehaviour
             float volumeForceMultiplier = volumeDetector.VolumeFromMicrophone() * volumeDetector.micMultiplier;
             if (volumeForceMultiplier < volumeDetector.minVolume) volumeForceMultiplier = 0;
 
-            if (gameObject.CompareTag("Enemy"))
+            Vector3 forceAmount = forceDirection * volumeForceMultiplier / sourceDistance;
+
+            if (forceAmount.magnitude <= 0) return;
+
+            if (enemy != null)
             {
-                EnemyController enemy = GetComponent<EnemyController>();
-                enemy.ApplyKnockback();
+                if (!enemy.isKnocked) enemy.ApplyKnockback();
             }
 
-            rb.AddForce(forceDirection * volumeForceMultiplier / sourceDistance, ForceMode.Impulse);
+            rb.AddForce(forceAmount, ForceMode.Impulse);
         }
     }
 }

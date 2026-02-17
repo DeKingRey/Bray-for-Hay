@@ -4,11 +4,8 @@ using UnityEngine;
 
 public class SightEnemy : EnemyController
 {
-    [SerializeField] private float detectionRadius;
     [SerializeField] private float visionAngle;
     [SerializeField] private float visionDistance;
-
-    private Transform player;
 
     void Update()
     {
@@ -29,7 +26,7 @@ public class SightEnemy : EnemyController
         {
             if (hit.collider.CompareTag("Player"))
             {
-                Debug.Log("see player");
+                isChasing = true;
             }
         }
     }
@@ -37,6 +34,7 @@ public class SightEnemy : EnemyController
     void OnDrawGizmos()
     {
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
-        Gizmos.DrawRay(transform.position, (player.position - transform.position).normalized);
+        if (player != null)
+            Gizmos.DrawRay(transform.position, (player.position - transform.position).normalized);
     }
 }
