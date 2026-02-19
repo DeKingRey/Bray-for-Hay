@@ -4,16 +4,14 @@ using UnityEngine;
 
 public class SightEnemy : EnemyController
 {
+    [Header("Sight")]
     [SerializeField] private float visionAngle;
-    [SerializeField] private float visionDistance;
 
-    void Update()
+    protected override void Update()
     {
-        // Checks if player is within detection radius of enemy
-        Collider[] hits = Physics.OverlapSphere(transform.position, detectionRadius, playerLayer);
-        if (hits.Length == 0) return;
+        base.Update();
 
-        player = hits[0].transform;
+        if (!playerInRange) return;
 
         // Gets angle of direction to player to forward position
         Vector3 playerDir = (player.position - transform.position).normalized;
@@ -22,19 +20,12 @@ public class SightEnemy : EnemyController
         // Checks if player is in vision cone
         if (angle > visionAngle * 0.5f) return;
 
-        if (Physics.Raycast(transform.position, playerDir, out RaycastHit hit, visionDistance))
+        if (Physics.Raycast(transform.position, playerDir, out RaycastHit hit, detectionRadius))
         {
             if (hit.collider.CompareTag("Player"))
             {
-                isChasing = true;
+                canSensePlayer = true;
             }
         }
-    }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
-        if (player != null)
-            Gizmos.DrawRay(transform.position, (player.position - transform.position).normalized);
     }
 }

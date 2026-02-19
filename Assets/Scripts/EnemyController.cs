@@ -8,50 +8,90 @@ public class EnemyController : MonoBehaviour
     [Header("Pathfinding")]
     [SerializeField] private float waitTime;
     [SerializeField] private float knockbackRecoveryThreshold;
+    [SerializeField] private float knockbackRecoveryTime = 3f;
 
     [Header("Detection")]
     [SerializeField] protected LayerMask playerLayer;
     [SerializeField] protected float detectionRadius;
 
     [Header("Combat")]
-    [SerializeField] private float attackDistance;
+    [SerializeField] private float attackRange;
     [SerializeField] private float attackCooldown;
-    [SerializeField] private GameObject bulletObject;
+    [SerializeField] private GameObject projectile;
 
     private NavMeshAgent agent;
     private EnemyPath path;
     private Rigidbody rb;
-    private float groundY = -3.437806f;
 
     private float elapsedTime = 0f;
     [HideInInspector] public bool isKnocked = false;
-    protected bool isChasing = false;
+    protected bool playerInRange = false;
+    protected bool canSensePlayer = false;
+    private bool hasAttacked = false;
 
     protected Transform player;
 
-    void Start()
+    protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         path = GetComponent<EnemyPath>();
         rb = GetComponent<Rigidbody>();
 
         agent.destination = path.GetCurrentWaypoint();
+        player = GameObject.FindWithTag("Player").transform;
     }
 
-    void Update()
+    protected virtual void Update()
     {
         if (isKnocked)
         {
-            Debug.Log($"{gameObject.name}: {rb.velocity.magnitude}");
             if (rb.velocity.magnitude <= knockbackRecoveryThreshold) RecoverFromKnockback();
             else return;
         }
 
-        if (isChasing)
+        bool inChaseRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
+        bool inAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
+
+        if (!inChaseRange && !inAttackRange) Patrolling();
+        else if (inChaseRange)
         {
-            ChasePlayer();
-            return;
-        }
+            playerInRange = true;
+            if (!inAttackRange && canSensePlayer) Chasing();
+            else if (inAttackRange && canSensePlayer) Attacking();
+            else Patrolling();
+        } else playerInRange = false;
+    }
+
+    public void ApplyKnockback()
+    {
+        isKnocked = true;
+        agent.enabled = false;
+
+        StartCoroutine(KnockedOutTimer());
+    }
+
+    private void RecoverFromKnockback()
+    {
+        isKnocked = false;
+
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        agent.enabled = true;
+
+        agent.Warp(transform.position); // Tells agent new position
+    }
+
+    IEnumerator KnockedOutTimer()
+    {
+        yield return new WaitForSeconds(knockbackRecoveryTime);
+
+        RecoverFromKnockback();
+    }
+
+    void Patrolling()
+    {
+        canSensePlayer = false;
 
         if (agent.remainingDistance <= 0.1f)
         {
@@ -64,42 +104,36 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public void ApplyKnockback()
+    void Chasing()
     {
-        isKnocked = true;
-        agent.enabled = false;
-    }
-
-    private void RecoverFromKnockback()
-    {
-        isKnocked = false;
-
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-
-        agent.enabled = true;
-
-        Vector3 agentPosition = new Vector3(transform.position.x, groundY, transform.position.z);
-        agent.Warp(agentPosition); // Tells agent new position
-    }
-
-    void ChasePlayer()
-    {
-        isChasing = true;
         agent.destination = player.position;
+    }
 
-        if (agent.remainingDistance >= detectionRadius) isChasing = false;
+    void Attacking()
+    {
+        agent.destination = transform.position;
 
-        if (agent.remainingDistance <= attackDistance)
+        transform.LookAt(player);
+
+        if (!hasAttacked)
         {
-            StartCoroutine(Attack());
+            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+            rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
+            hasAttacked = true;
+            Invoke(nameof(ResetAttack), attackCooldown);
         }
     }
 
-    private IEnumerator Attack()
+    void ResetAttack()
     {
-        Instantiate(bulletObject);
+        hasAttacked = false;
+    }
 
-        yield return new WaitForSeconds(attackCooldown);
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
 }

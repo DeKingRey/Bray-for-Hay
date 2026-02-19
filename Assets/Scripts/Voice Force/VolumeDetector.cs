@@ -9,12 +9,25 @@ public class VolumeDetector : MonoBehaviour
     public float minVolume = 0.1f;
     public float maxVolume = 5f;
     public float micMultiplier = 10f;
+    [SerializeField] private float maxNoiseRadius;
+
+    [HideInInspector] public float currentNoiseRadius;
+    private float loudness;
 
     private AudioClip microphoneClip;
     
     void Start()
     {
         MicrophoneToAudioClip();
+    }
+
+    void Update()
+    {
+        loudness = VolumeFromMicrophone() * micMultiplier;
+
+        Debug.Log($"Loudness: {loudness} Raw Volume: {VolumeFromMicrophone()}");
+
+        currentNoiseRadius = Mathf.Clamp(loudness * 5f, 0, maxNoiseRadius);
     }
 
     void MicrophoneToAudioClip()

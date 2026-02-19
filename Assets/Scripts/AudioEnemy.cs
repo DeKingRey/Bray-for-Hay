@@ -4,27 +4,30 @@ using UnityEngine;
 
 public class AudioEnemy : EnemyController
 {
-    [SerializeField] private float volumeThreshold;
+    [SerializeField] private float hearingStrength = 1f;
 
-    private Transform player;
+    private VolumeDetector detector;
 
-    void Update()
+    protected override void Start()
     {
-        // Checks if player is within detection radius of enemy
-        Collider[] hits = Physics.OverlapSphere(transform.position, detectionRadius, playerLayer);
-        if (hits.Length == 0) return;
+        base.Start();
 
-        player = hits[0].transform;
-
-        // Check if audio is detected within radius
-        // Check that audio is above threshold
-        // Chase
+        detector = FindObjectOfType<VolumeDetector>();
     }
 
-    void OnDrawGizmos()
+    protected override void Update()
     {
-        Gizmos.DrawWireSphere(transform.position, detectionRadius);
-        if (player != null)
-            Gizmos.DrawRay(transform.position, (player.position - transform.position).normalized);
+        base.Update();
+
+        // Make it so it attacks even if it cant hear the player (create a suspicious function or smth)
+
+        if (!playerInRange) return;
+
+        float distance = Vector3.Distance(transform.position, player.position);
+
+        if (distance <= detector.currentNoiseRadius * hearingStrength)
+        {
+            canSensePlayer = true;    
+        }
     }
 }

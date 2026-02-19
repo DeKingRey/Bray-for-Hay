@@ -19,7 +19,7 @@ public class VoiceFeedbackController : MonoBehaviour
 
     void Update()
     {
-        float rawVolume = volumeDetector.VolumeFromMicrophone() * volumeDetector.micMultiplier;
+        float rawVolume = volumeDetector.VolumeFromMicrophone() * volumeDetector.micMultiplier * 1.5f;
         if (rawVolume < volumeDetector.minVolume) rawVolume = 0f;
 
         smoothedVolume = Mathf.Lerp(smoothedVolume, rawVolume, smoothSpeed * Time.deltaTime);
