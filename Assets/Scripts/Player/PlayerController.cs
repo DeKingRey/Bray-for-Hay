@@ -94,5 +94,11 @@ public class PlayerController : MonoBehaviour
     void OnTriggerEnter(Collider obj)
     {
         if (obj.CompareTag("Weapon")) GameManager.Instance.ChangeState(gameOverState, 0);
+
+        if (obj.CompareTag("Hay"))
+        {
+            Debug.Log("hay!");
+            Destroy(obj.gameObject);
+        }
     }
 }
