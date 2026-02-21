@@ -152,6 +152,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 263cc6908442da740973b694aeaf8462, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playState: 0
+  gameOverState: 2
   walkSpeed: 4
   sprintSpeed: 10
   jumpMultiplier: 40
@@ -174,6 +176,8 @@ MonoBehaviour:
   minVolume: 0.1
   maxVolume: 5
   micMultiplier: 1
+  maxNoiseRadius: 0
+  currentNoiseRadius: 0
 --- !u!114 &423359935
 MonoBehaviour:
   m_ObjectHideFlags: 0

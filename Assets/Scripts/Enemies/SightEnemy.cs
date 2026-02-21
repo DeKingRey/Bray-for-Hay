@@ -20,12 +20,6 @@ public class SightEnemy : EnemyController
         // Checks if player is in vision cone
         if (angle > visionAngle * 0.5f) return;
 
-        if (Physics.Raycast(transform.position, playerDir, out RaycastHit hit, detectionRadius))
-        {
-            if (hit.collider.CompareTag("Player"))
-            {
-                canSensePlayer = true;
-            }
-        }
+        canSensePlayer = true;
     }
 }

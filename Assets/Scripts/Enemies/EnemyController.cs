@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
+    [SerializeField] private GameManager.GameState playState;
+
     [Header("Pathfinding")]
     [SerializeField] private float waitTime;
     [SerializeField] private float knockbackRecoveryThreshold;
@@ -43,6 +45,8 @@ public class EnemyController : MonoBehaviour
 
     protected virtual void Update()
     {
+        if (GameManager.Instance.State != playState) return;
+
         if (isKnocked)
         {
             if (rb.velocity.magnitude <= knockbackRecoveryThreshold) RecoverFromKnockback();

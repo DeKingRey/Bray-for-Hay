@@ -25,9 +25,7 @@ public class VolumeDetector : MonoBehaviour
     {
         loudness = VolumeFromMicrophone() * micMultiplier;
 
-        Debug.Log($"Loudness: {loudness} Raw Volume: {VolumeFromMicrophone()}");
-
-        currentNoiseRadius = Mathf.Clamp(loudness * 5f, 0, maxNoiseRadius);
+        currentNoiseRadius = Mathf.Clamp(loudness * 10f, 0, maxNoiseRadius);
     }
 
     void MicrophoneToAudioClip()

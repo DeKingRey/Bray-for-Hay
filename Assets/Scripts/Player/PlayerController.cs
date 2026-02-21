@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private GameManager.GameState playState;
+    [SerializeField] private GameManager.GameState gameOverState;
+
     [Header("Movement")]
     [SerializeField] private float walkSpeed;
     [SerializeField] private float sprintSpeed;
@@ -30,6 +33,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.State != playState) return;
+
         HandleMovement();
     }
 
@@ -84,5 +89,10 @@ public class PlayerController : MonoBehaviour
         #endregion
 
         controller.Move(moveDirection * Time.deltaTime);
+    }
+
+    void OnTriggerEnter(Collider obj)
+    {
+        if (obj.CompareTag("Weapon")) GameManager.Instance.ChangeState(gameOverState, 0);
     }
 }
