@@ -17,12 +17,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gravity = 9.81f;
     [SerializeField] private float fallMultiplier;
 
+    [Header("Sound")]
+    [SerializeField] private float createSoundInterval = 0.15f;
+    [SerializeField] private float sprintSoundRadius = 10f;
+    [SerializeField] private float walkSoundRadius = 5f;
+
+    private float soundTimer = 0f;
+
     private CharacterController controller;
 
     private Vector3 moveDirection;
+
     private bool canMove = true;
+    private bool isRunning;
+    private bool isMoving;
     private bool isJumping;
     private bool isFalling;
+
     private float jumpPower;
 
 
@@ -36,6 +47,16 @@ public class PlayerController : MonoBehaviour
         if (GameManager.Instance.State != playState) return;
 
         HandleMovement();
+
+        soundTimer += Time.deltaTime;
+        if (soundTimer >= createSoundInterval)
+        {
+            // Radius dependent on whether sprinting or walking
+            float radius = isMoving ? (isRunning ? sprintSoundRadius : walkSoundRadius) : 0;
+            SoundManager.Instance.CreateSoundBubble(radius);
+            
+            soundTimer = 0f;
+        }
     }
 
     void HandleMovement()
@@ -45,7 +66,7 @@ public class PlayerController : MonoBehaviour
         Vector3 right = transform.TransformDirection(Vector3.right);
 
         // Press Left Shift to run
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+        isRunning = Input.GetKey(KeyCode.LeftShift);
 
         // Current speed is dependent on whether the player is sprinting (speed is then multiplied by input)
         float currentSpeedX = canMove ? (isRunning ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
@@ -53,7 +74,7 @@ public class PlayerController : MonoBehaviour
         float movementDirectionY = moveDirection.y;
         moveDirection = (forward * currentSpeedX) + (right * currentSpeedZ);
 
-        bool isMoving = currentSpeedX != 0 || currentSpeedZ != 0;
+        isMoving = currentSpeedX != 0 || currentSpeedZ != 0;
 
         #endregion
 

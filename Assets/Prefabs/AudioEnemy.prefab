@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7467593935963168757}
   - component: {fileID: 7467593935963168759}
   - component: {fileID: 7467593935963168756}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Eye1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 7467593935997217059}
   - component: {fileID: 7467593935997217061}
   - component: {fileID: 7467593935997217058}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Pupil (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 7467593936697742146}
   - component: {fileID: 7467593936697742148}
   - component: {fileID: 7467593936697742149}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Pupil
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -267,7 +267,7 @@ GameObject:
   - component: {fileID: 7467593937088603733}
   - component: {fileID: 7467593937088603730}
   - component: {fileID: 7467593937088603731}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: AudioEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -459,7 +459,7 @@ GameObject:
   - component: {fileID: 7467593937234718973}
   - component: {fileID: 7467593937234718975}
   - component: {fileID: 7467593937234718972}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Eye1 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

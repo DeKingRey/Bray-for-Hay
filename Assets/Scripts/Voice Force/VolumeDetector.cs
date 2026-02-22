@@ -5,13 +5,18 @@ using UnityEngine.UI;
 
 public class VolumeDetector : MonoBehaviour
 {
+    [Header("Mic Detection")]
     [SerializeField] private int sampleWindow = 64;
     public float minVolume = 0.1f;
     public float maxVolume = 5f;
     public float micMultiplier = 10f;
-    [SerializeField] private float maxNoiseRadius;
 
-    [HideInInspector] public float currentNoiseRadius;
+    [Header("Audio Enemy Detection")]
+    [SerializeField] private float createSoundInterval = 0.15f;
+    [SerializeField] private float maxNoiseRadius = 10f;
+    [SerializeField] private float radiusMultiplier = 5f;
+    
+    private float soundTimer = 0f;
     private float loudness;
 
     private AudioClip microphoneClip;
@@ -23,9 +28,19 @@ public class VolumeDetector : MonoBehaviour
 
     void Update()
     {
-        loudness = VolumeFromMicrophone() * micMultiplier;
+        if (GameManager.Instance.State != GameManager.GameState.Playing) return;
 
-        currentNoiseRadius = Mathf.Clamp(loudness * 10f, 0, maxNoiseRadius);
+        // Only runs sound bubble every few frames (for performance)
+        soundTimer += Time.deltaTime;
+        if (soundTimer >= createSoundInterval)
+        {
+            // Radius size depends on volume of mic
+            loudness = VolumeFromMicrophone() * micMultiplier;
+            float currentNoiseRadius = Mathf.Clamp(loudness * radiusMultiplier, 0, maxNoiseRadius);
+
+            SoundManager.Instance.CreateSoundBubble(currentNoiseRadius);
+            soundTimer = 0f;
+        }
     }
 
     void MicrophoneToAudioClip()
