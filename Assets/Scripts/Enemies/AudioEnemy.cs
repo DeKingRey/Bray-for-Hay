@@ -28,6 +28,14 @@ public class AudioEnemy : EnemyController
 
     public void Investigate()
     {
-        // this is next
+        Vector3 playerDir = (player.position - transform.position).normalized;
+        float playerDistance = Vector3.Distance(transform.position, player.position);
+        float radius = maxHearingDistance / playerDistance;
+
+        RaycastHit hit;
+        if (Physics.SphereCast(transform.position, radius, playerDir, out hit, maxHearingDistance, playerLayer))
+        {
+            
+        }
     }
 }

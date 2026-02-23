@@ -32,15 +32,19 @@ public class EnemyController : MonoBehaviour
     private bool hasAttacked = false;
 
     protected Transform player;
+    private Animator animator;
 
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         path = GetComponent<EnemyPath>();
         rb = GetComponent<Rigidbody>();
+        animator = GetComponentInChildren<Animator>();
 
         agent.destination = path.GetCurrentWaypoint();
         player = GameObject.FindWithTag("Player").transform;
+
+        DisableRagdoll();
     }
 
     protected virtual void Update()
@@ -70,6 +74,7 @@ public class EnemyController : MonoBehaviour
     {
         isKnocked = true;
         agent.enabled = false;
+        EnableRagdoll();
 
         StartCoroutine(KnockedOutTimer());
     }
@@ -83,6 +88,7 @@ public class EnemyController : MonoBehaviour
 
         agent.enabled = true;
 
+        DisableRagdoll();
         agent.Warp(transform.position); // Tells agent new position
     }
 
@@ -131,6 +137,34 @@ public class EnemyController : MonoBehaviour
     void ResetAttack()
     {
         hasAttacked = false;
+    }
+
+    void EnableRagdoll()
+    {
+        animator.enabled = false;
+        Collider[] colliders = this.gameObject.GetComponentsInChildren<Collider>();
+
+        foreach (Collider c in colliders)
+        {
+            if (c.gameObject != this.gameObject)
+            {
+                c.isTrigger = false;
+            }
+        }
+    }
+
+    void DisableRagdoll()
+    {
+        animator.enabled = true;
+        Collider[] colliders = this.gameObject.GetComponentsInChildren<Collider>();
+
+        foreach (Collider c in colliders)
+        {
+            if (c.gameObject != this.gameObject)
+            {
+                c.isTrigger = true;
+            }
+        }
     }
 
     void OnDrawGizmosSelected()

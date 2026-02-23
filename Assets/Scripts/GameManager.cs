@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
         {
             case GameState.Playing:
                 break;
-            case GameState.Paused:
+            case GameState.Paused:  
                 break;
             case GameState.GameOver:
                 SceneManager.LoadScene("Game");
