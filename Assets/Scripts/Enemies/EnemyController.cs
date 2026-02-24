@@ -5,23 +5,31 @@ using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
+    public enum EnemyState
+    {
+        Patrolling,
+        Investigating,
+        Attacking
+    }
+
     [SerializeField] private GameManager.GameState playState;
 
     [Header("Pathfinding")]
     [SerializeField] private float waitTime;
-    [SerializeField] private float knockbackRecoveryThreshold;
+    [SerializeField] private float knockbackRecoveryThreshold = 0f;
     [SerializeField] private float knockbackRecoveryTime = 3f;
+    public float forceThreshold;
 
     [Header("Detection")]
     [SerializeField] protected LayerMask playerLayer;
     [SerializeField] protected float detectionRadius;
 
     [Header("Combat")]
-    [SerializeField] private float attackRange;
+    [SerializeField] protected float attackRange;
     [SerializeField] private float attackCooldown;
-    [SerializeField] private GameObject projectile;
+    [SerializeField] protected GameObject projectile;
 
-    private NavMeshAgent agent;
+    protected NavMeshAgent agent;
     private EnemyPath path;
     private Rigidbody rb;
 
@@ -29,8 +37,9 @@ public class EnemyController : MonoBehaviour
     [HideInInspector] public bool isKnocked = false;
     protected bool playerInRange = false;
     protected bool canSensePlayer = false;
-    private bool hasAttacked = false;
-
+    protected bool canAttack = true;
+    protected EnemyState state = EnemyState.Patrolling;
+    
     protected Transform player;
     private Animator animator;
 
@@ -57,15 +66,14 @@ public class EnemyController : MonoBehaviour
             else return;
         }
 
-        bool inChaseRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
-        bool inAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
-
-        if (!inChaseRange && !inAttackRange) Patrolling();
-        else if (inChaseRange)
+        if (state == EnemyState.Patrolling) Patrolling();
+        else
         {
             playerInRange = true;
-            if (!inAttackRange && canSensePlayer) Chasing();
-            else if (inAttackRange && canSensePlayer) Attacking();
+
+            // Only non-blind enemies will change states (blind enemies have their own methods)
+            if (!inAttackRange && canSensePlayer || canHearPlayer == 1) Chasing();
+            else if (inAttackRange && canSensePlayer || canHearPlayer == 2) Attacking();
             else Patrolling();
         } else playerInRange = false;
     }
@@ -116,27 +124,39 @@ public class EnemyController : MonoBehaviour
 
     void Chasing()
     {
-        agent.destination = player.position;
+        Debug.Log("chasing");
+
+        // Will make the enemy stop when they are within attack range
+        if (agent.remainingDistance >= attackRange) agent.destination = player.position;
+        else agent.destination = transform.position;
     }
 
-    void Attacking()
+    protected void Attacking()
     {
+        Debug.Log("attacking");
+
         agent.destination = transform.position;
 
         transform.LookAt(player);
 
-        if (!hasAttacked)
-        {
-            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
-            hasAttacked = true;
-            Invoke(nameof(ResetAttack), attackCooldown);
-        }
+        if (canAttack) Attack();
+    }
+
+    protected void Attack()
+    {
+        // Sends out a projectile towards the player
+        Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+        rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
+
+        Invoke(nameof(ResetAttack), attackCooldown);
+        canAttack = false;
+
+        canHearPlayer = 0;
     }
 
     void ResetAttack()
     {
-        hasAttacked = false;
+        canAttack = true;
     }
 
     void EnableRagdoll()
@@ -151,20 +171,43 @@ public class EnemyController : MonoBehaviour
                 c.isTrigger = false;
             }
         }
+
+        Rigidbody[] rbs = this.gameObject.GetComponentsInChildren<Rigidbody>();
+
+        foreach (Rigidbody rb in rbs)
+        {
+            if (rb.gameObject != this.gameObject)
+            {
+                rb.isKinematic = false;
+            }
+        }
     }
 
     void DisableRagdoll()
     {
-        animator.enabled = true;
-        Collider[] colliders = this.gameObject.GetComponentsInChildren<Collider>();
+        foreach (Rigidbody rb in GetComponentsInChildren<Rigidbody>())
+        {
+            if (rb.gameObject != this.gameObject)
+            {
+                rb.isKinematic = true;
+            }
+        }
 
-        foreach (Collider c in colliders)
+        foreach (Collider c in GetComponentsInChildren<Collider>())
         {
             if (c.gameObject != this.gameObject)
             {
                 c.isTrigger = true;
             }
         }
+
+        transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
+
+        animator.enabled = true;
+
+        // Resets bones to default pose
+        animator.Rebind();
+        animator.Update(0f);
     }
 
     void OnDrawGizmosSelected()

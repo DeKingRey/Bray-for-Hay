@@ -11,6 +11,14 @@ public class SightEnemy : EnemyController
     {
         base.Update();
 
+        // State manager for enemies - only applies to non-blind enemies
+        bool inChaseRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
+        bool inAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
+
+        if (inAttackRange) state = EnemyState.Attacking;
+        else if (inChaseRange) state = EnemyState.Chasing;
+        else state = EnemyState.Patrolling;
+
         if (!playerInRange) return;
 
         // Gets angle of direction to player to forward position

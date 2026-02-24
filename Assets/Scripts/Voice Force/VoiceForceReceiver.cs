@@ -28,16 +28,20 @@ public class VoiceForceReceiver : MonoBehaviour
             float volumeForceMultiplier = volumeDetector.VolumeFromMicrophone() * volumeDetector.micMultiplier;
             if (volumeForceMultiplier < volumeDetector.minVolume) volumeForceMultiplier = 0;
 
+            // Force amount is dependent on distance
             Vector3 forceAmount = forceDirection * volumeForceMultiplier / sourceDistance;
 
             if (forceAmount.magnitude <= 0) return;
 
+            // Disables enemy AI
             if (enemy != null)
             {
-                if (!enemy.isKnocked) enemy.ApplyKnockback();
-            }
-
-            rb.AddForce(forceAmount, ForceMode.Impulse);
+                if (!enemy.isKnocked && forceAmount.magnitude >= enemy.forceThreshold)
+                {
+                    enemy.ApplyKnockback();
+                    rb.AddForce(forceAmount, ForceMode.Impulse); 
+                }
+            } else rb.AddForce(forceAmount, ForceMode.Impulse);      
         }
     }
 }
