@@ -19,17 +19,6 @@ public class AudioEnemy : EnemyController
         detector = FindObjectOfType<VolumeDetector>();
     }
 
-    protected override void Update()
-    {
-        base.Update();
-
-        // Make it so it attacks even if it cant hear the player (create a suspicious function or smth)
-
-        if (!playerInRange) return;
-
-        float distance = Vector3.Distance(transform.position, player.position);
-    }
-
     /// Sends out a sphere cast towards the player when a sound is heard
     /// The sphere sizes is dependent on the distance to the player (closer = larger radius)
     /// If the player is beyond the hearing distance, the enemy will just investigate
@@ -37,15 +26,16 @@ public class AudioEnemy : EnemyController
     {
         Vector3 playerDir = (player.position - transform.position).normalized;
         float playerDistance = Vector3.Distance(transform.position, player.position);
-        float radius = maxHearingDistance / playerDistance;
+        float radius = maxHearingDistance / playerDistance; // Sphere cast radius (larger if dist smaller)
 
-        canHearPlayer = 1;
+        state = EnemyState.Investigating;
 
         RaycastHit hit;
         if (Physics.SphereCast(transform.position, radius, playerDir, out hit, maxHearingDistance, playerLayer))
         {
+            // Attacks if player isn't too far
             if (playerDistance < maxHearingDistance) StartCoroutine(ShootDelay(playerDistance));
-            else canHearPlayer = 1;
+            else state = EnemyState.Investigating;
         }
     }
 
@@ -57,6 +47,6 @@ public class AudioEnemy : EnemyController
         if (distance <= minShootDelayDistance) duration = minDelayDuration;
 
         yield return new WaitForSeconds(duration);
-        canHearPlayer = 2;
+        state = EnemyState.Attacking;
     }
 }

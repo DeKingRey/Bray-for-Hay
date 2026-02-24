@@ -11,23 +11,27 @@ public class SightEnemy : EnemyController
     {
         base.Update();
 
-        // State manager for enemies - only applies to non-blind enemies
-        bool inChaseRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
+        if (isKnocked) return;
+
+        // Checks range from player
+        bool inPlayerRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
         bool inAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
 
-        if (inAttackRange) state = EnemyState.Attacking;
-        else if (inChaseRange) state = EnemyState.Chasing;
-        else state = EnemyState.Patrolling;
-
-        if (!playerInRange) return;
+        if (!inPlayerRange) state = EnemyState.Patrolling;
 
         // Gets angle of direction to player to forward position
         Vector3 playerDir = (player.position - transform.position).normalized;
         float angle = Vector3.Angle(transform.forward, playerDir);
 
         // Checks if player is in vision cone
-        if (angle > visionAngle * 0.5f) return;
+        if (angle > visionAngle * 0.5f)
+        {
+            state = EnemyState.Patrolling;
+            return;
+        }
 
-        canSensePlayer = true;
+        // Changes enemy state
+        if (inAttackRange) state = EnemyState.Attacking;
+        else state = EnemyState.Investigating;
     }
 }

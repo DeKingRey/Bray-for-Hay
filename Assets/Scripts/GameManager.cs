@@ -55,8 +55,8 @@ public class GameManager : MonoBehaviour
             case GameState.Paused:  
                 break;
             case GameState.GameOver:
-                SceneManager.LoadScene("Game");
-                ChangeState(GameState.Playing, 0);
+                //SceneManager.LoadScene("Game");
+                //ChangeState(GameState.Playing, 0);
                 break;
             case GameState.Menu:
                 break;

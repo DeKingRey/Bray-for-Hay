@@ -16,7 +16,7 @@ public class EnemyController : MonoBehaviour
 
     [Header("Pathfinding")]
     [SerializeField] private float waitTime;
-    [SerializeField] private float knockbackRecoveryThreshold = 0f;
+    [SerializeField] private float knockbackRecoveryThreshold = 0.1f;
     [SerializeField] private float knockbackRecoveryTime = 3f;
     public float forceThreshold;
 
@@ -35,10 +35,8 @@ public class EnemyController : MonoBehaviour
 
     private float elapsedTime = 0f;
     [HideInInspector] public bool isKnocked = false;
-    protected bool playerInRange = false;
-    protected bool canSensePlayer = false;
     protected bool canAttack = true;
-    protected EnemyState state = EnemyState.Patrolling;
+    public EnemyState state = EnemyState.Patrolling;
     
     protected Transform player;
     private Animator animator;
@@ -69,48 +67,15 @@ public class EnemyController : MonoBehaviour
         if (state == EnemyState.Patrolling) Patrolling();
         else
         {
-            playerInRange = true;
-
             // Only non-blind enemies will change states (blind enemies have their own methods)
-            if (!inAttackRange && canSensePlayer || canHearPlayer == 1) Chasing();
-            else if (inAttackRange && canSensePlayer || canHearPlayer == 2) Attacking();
-            else Patrolling();
-        } else playerInRange = false;
-    }
-
-    public void ApplyKnockback()
-    {
-        isKnocked = true;
-        agent.enabled = false;
-        EnableRagdoll();
-
-        StartCoroutine(KnockedOutTimer());
-    }
-
-    private void RecoverFromKnockback()
-    {
-        isKnocked = false;
-
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-
-        agent.enabled = true;
-
-        DisableRagdoll();
-        agent.Warp(transform.position); // Tells agent new position
-    }
-
-    IEnumerator KnockedOutTimer()
-    {
-        yield return new WaitForSeconds(knockbackRecoveryTime);
-
-        RecoverFromKnockback();
+            if (state == EnemyState.Attacking) Attacking();
+            else Chasing();
+        }
     }
 
     void Patrolling()
     {
-        canSensePlayer = false;
-
+        // Once arrived at current waypoint, go to next one (after delay)
         if (agent.remainingDistance <= 0.1f)
         {
             elapsedTime += Time.deltaTime;
@@ -124,8 +89,6 @@ public class EnemyController : MonoBehaviour
 
     void Chasing()
     {
-        Debug.Log("chasing");
-
         // Will make the enemy stop when they are within attack range
         if (agent.remainingDistance >= attackRange) agent.destination = player.position;
         else agent.destination = transform.position;
@@ -133,30 +96,60 @@ public class EnemyController : MonoBehaviour
 
     protected void Attacking()
     {
-        Debug.Log("attacking");
-
         agent.destination = transform.position;
-
         transform.LookAt(player);
 
         if (canAttack) Attack();
     }
 
-    protected void Attack()
+    void Attack()
     {
         // Sends out a projectile towards the player
         Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
         rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
 
+        // Resets attack
         Invoke(nameof(ResetAttack), attackCooldown);
         canAttack = false;
-
-        canHearPlayer = 0;
+        state = EnemyState.Patrolling;
     }
 
     void ResetAttack()
     {
         canAttack = true;
+    }
+
+    public void ApplyKnockback()
+    {
+        isKnocked = true;
+        agent.enabled = false;
+
+        animator.enabled = false;
+        EnableRagdoll();
+
+        StartCoroutine(KnockedOutTimer());
+    }
+
+    private void RecoverFromKnockback()
+    {
+        Debug.Log("recover");
+        agent.enabled = true;
+        isKnocked = false;
+
+        animator.enabled = true;
+
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        DisableRagdoll();
+        agent.Warp(transform.position); // Tells agent new position
+    }
+
+    IEnumerator KnockedOutTimer()
+    {
+        yield return new WaitForSeconds(knockbackRecoveryTime);
+
+        RecoverFromKnockback();
     }
 
     void EnableRagdoll()

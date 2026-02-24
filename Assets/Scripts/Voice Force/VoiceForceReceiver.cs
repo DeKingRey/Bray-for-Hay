@@ -29,7 +29,7 @@ public class VoiceForceReceiver : MonoBehaviour
             if (volumeForceMultiplier < volumeDetector.minVolume) volumeForceMultiplier = 0;
 
             // Force amount is dependent on distance
-            Vector3 forceAmount = forceDirection * volumeForceMultiplier / sourceDistance;
+            Vector3 forceAmount = forceDirection * volumeForceMultiplier;
 
             if (forceAmount.magnitude <= 0) return;
 
