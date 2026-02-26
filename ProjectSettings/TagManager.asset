@@ -8,6 +8,7 @@ TagManager:
   - Enemy
   - Weapon
   - Hay
+  - Context
   layers:
   - Default
   - TransparentFX

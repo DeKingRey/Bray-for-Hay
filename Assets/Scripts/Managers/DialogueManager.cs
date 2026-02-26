@@ -2,6 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class Interval
+{
+    public char character;
+    public float interval;
+}
+
 /// Handles dialogue within the scene
 /// Updates current dialogue being displayed
 public class DialogueManager : MonoBehaviour
@@ -9,8 +16,12 @@ public class DialogueManager : MonoBehaviour
     public static DialogueManager Instance;
 
     [SerializeField] private KeyCode[] nextDialogueKeys;
-    [SerializeField] private float letterInterval = 0.1f;
     [SerializeField] private GameObject dialogueBox;
+
+    [SerializeField] private float defaultInterval = 0.05f;
+    [SerializeField] private Interval[] intervals;
+    private Dictionary<char, float> intervalLookup = new Dictionary<char, float>();
+    
     private Dialogue currentDialogue;
     
     void Awake()
@@ -22,6 +33,11 @@ public class DialogueManager : MonoBehaviour
         else if (Instance != this)
         {
             Destroy(gameObject);
+        }
+
+        foreach (var ci in intervals)
+        {
+            intervalLookup[ci.character] = ci.interval;
         }
     }
 
@@ -41,8 +57,10 @@ public class DialogueManager : MonoBehaviour
                             currentDialogue = null;
                             dialogueBox.SetActive(false);
                             return;
-                        } else
-                            currentDialogue.StartCoroutine(currentDialogue.TypeLetters(letterInterval));
+                        } else {
+                            currentDialogue.StartCoroutine(currentDialogue.TypeLetters(intervalLookup, defaultInterval));
+                        }
+                            
                     }
                 }
             }
@@ -56,6 +74,6 @@ public class DialogueManager : MonoBehaviour
         dialogueBox.SetActive(true);
 
         // Auto starts letter typing
-        currentDialogue.StartCoroutine(currentDialogue.TypeLetters(letterInterval));
+        currentDialogue.StartCoroutine(currentDialogue.TypeLetters(intervalLookup, defaultInterval));
     }
 }

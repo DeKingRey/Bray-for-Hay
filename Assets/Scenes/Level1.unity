@@ -2898,7 +2898,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 596151421976652963, guid: 09596c213847a7049b461c7a8b5ee7cc, type: 3}
       propertyPath: micMultiplier
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 596151421976652975, guid: 09596c213847a7049b461c7a8b5ee7cc, type: 3}
       propertyPath: m_Name

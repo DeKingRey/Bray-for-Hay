@@ -16,7 +16,7 @@ public class Dialogue : MonoBehaviour
 
     private bool hasStarted = false;
 
-    public IEnumerator TypeLetters(float letterInterval)
+    public IEnumerator TypeLetters(Dictionary<char, float> intervals, float defaultInterval)
     {
         hasStarted = true;
         textComplete = false;
@@ -30,10 +30,17 @@ public class Dialogue : MonoBehaviour
         int total = textArea.textInfo.characterCount; // Gets total characters
 
         // Reveals each letter every few milliseconds
-        for (int i = 0; i <= total; i++)
+        for (int i = 0; i < total; i++)
         {
             // Max visible characters is used to avoid text wrapping on long words (so text is preset)
-            textArea.maxVisibleCharacters = i;
+            textArea.maxVisibleCharacters = i + 1;
+
+            char c = textArea.text[i];
+            float letterInterval = defaultInterval; // Default interval
+
+            if (intervals.ContainsKey(c))
+                letterInterval = intervals[c];
+
             yield return new WaitForSeconds(letterInterval);
         }
 

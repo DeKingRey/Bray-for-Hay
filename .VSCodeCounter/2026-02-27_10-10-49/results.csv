@@ -1,0 +1,17 @@
+"filename", "language", "C#", "comment", "blank", "total"
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Enemies\AudioEnemy.cs", "C#", 37, 6, 10, 53
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Enemies\EnemyController.cs", "C#", 167, 6, 40, 213
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Enemies\EnemyPath.cs", "C#", 45, 2, 13, 60
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Enemies\SightEnemy.cs", "C#", 25, 4, 9, 38
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Helpers\Destroyer.cs", "C#", 11, 0, 3, 14
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Helpers\Dialogue.cs", "C#", 40, 6, 11, 57
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Managers\DialogueManager.cs", "C#", 51, 4, 9, 64
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Managers\GameManager.cs", "C#", 56, 3, 10, 69
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Managers\SoundManager.cs", "C#", 62, 1, 13, 76
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Player\PlayerCam.cs", "C#", 27, 2, 10, 39
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Player\PlayerController.cs", "C#", 106, 7, 32, 145
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\TutorialTasks.cs", "C#", 35, 1, 8, 44
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Voice Force\VoiceFeedbackController.cs", "C#", 23, 0, 7, 30
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Voice Force\VoiceForceReceiver.cs", "C#", 35, 3, 10, 48
+"c:\Users\tiger\Games\BrayForHay_Git\Bray for Hay\Assets\Scripts\Voice Force\VolumeDetector.cs", "C#", 57, 7, 18, 82
+"Total", "-", 777, 52, 203, 1032
