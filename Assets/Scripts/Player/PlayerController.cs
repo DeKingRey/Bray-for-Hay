@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float walkSpeed;
     [SerializeField] private float sprintSpeed;
+    [SerializeField] private float crouchSpeed;
+    [SerializeField] private float crouchScaleY;
 
     [Header("Jumping")]
     [SerializeField] private float jumpMultiplier = 40f;
@@ -21,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float createSoundInterval = 0.15f;
     [SerializeField] private float sprintSoundRadius = 10f;
     [SerializeField] private float walkSoundRadius = 5f;
+    [SerializeField] private float crouchSoundRadius = 0f;
 
     private float soundTimer = 0f;
 
@@ -29,7 +32,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
 
     private bool canMove = true;
-    private bool isRunning;
+    private bool isSprinting;
+    private bool isCrouching;
     private bool isMoving;
     private bool isJumping;
     private bool isFalling;
@@ -52,7 +56,7 @@ public class PlayerController : MonoBehaviour
         if (soundTimer >= createSoundInterval)
         {
             // Radius dependent on whether sprinting or walking
-            float radius = isMoving ? (isRunning ? sprintSoundRadius : walkSoundRadius) : 0;
+            float radius = isMoving ? (isSprinting ? sprintSoundRadius : isCrouching ? crouchSoundRadius : walkSoundRadius) : 0;
             SoundManager.Instance.CreateSoundBubble(radius);
             
             soundTimer = 0f;
@@ -65,16 +69,31 @@ public class PlayerController : MonoBehaviour
         Vector3 forward = transform.TransformDirection(Vector3.forward);
         Vector3 right = transform.TransformDirection(Vector3.right);
 
-        // Press Left Shift to run
-        isRunning = Input.GetKey(KeyCode.LeftShift);
+        // Left Shift to run, left control to crouch
+        isSprinting = Input.GetKey(KeyCode.LeftShift);
+        isCrouching = Input.GetKey(KeyCode.LeftControl);
 
-        // Current speed is dependent on whether the player is sprinting (speed is then multiplied by input)
-        float currentSpeedX = canMove ? (isRunning ? sprintSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
-        float currentSpeedZ = canMove ? (isRunning ? sprintSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
+        // Ensures you don't do two movement techniques at once
+        if (isSprinting) isCrouching = false;
+        if (isCrouching) isSprinting = false;
+
+        // Current speed is dependent on whether the player is sprinting/crouching (speed is then multiplied by input)
+        float currentSpeedX = canMove ? (isSprinting ? sprintSpeed : isCrouching ? crouchSpeed : walkSpeed) 
+                                            * Input.GetAxis("Vertical") : 0;
+        float currentSpeedZ = canMove ? (isSprinting ? sprintSpeed : isCrouching ? crouchSpeed : walkSpeed)
+                                            * Input.GetAxis("Horizontal") : 0;
         float movementDirectionY = moveDirection.y;
         moveDirection = (forward * currentSpeedX) + (right * currentSpeedZ);
 
         isMoving = currentSpeedX != 0 || currentSpeedZ != 0;
+
+        #endregion
+
+        #region Handles Crouching
+
+        Vector3 scale = transform.localScale;
+        scale.y = isCrouching ? crouchScaleY : 1f;
+        transform.localScale = scale;
 
         #endregion
 

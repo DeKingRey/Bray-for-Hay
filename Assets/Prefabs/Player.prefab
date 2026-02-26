@@ -137,7 +137,7 @@ CharacterController:
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_SkinWidth: 0.0001
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &596151421976652962
@@ -156,10 +156,15 @@ MonoBehaviour:
   gameOverState: 2
   walkSpeed: 4
   sprintSpeed: 10
+  crouchSpeed: 2
+  crouchScaleY: 0.5
   jumpMultiplier: 40
   maxJumpTime: 0.35
   gravity: 9.81
   fallMultiplier: 5
+  createSoundInterval: 0.15
+  sprintSoundRadius: 10
+  walkSoundRadius: 5
 --- !u!114 &596151421976652963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,9 +180,10 @@ MonoBehaviour:
   sampleWindow: 64
   minVolume: 0.1
   maxVolume: 5
-  micMultiplier: 1
-  maxNoiseRadius: 0
-  currentNoiseRadius: 0
+  micMultiplier: 5
+  createSoundInterval: 0.15
+  maxNoiseRadius: 25
+  radiusMultiplier: 5
 --- !u!114 &423359935
 MonoBehaviour:
   m_ObjectHideFlags: 0

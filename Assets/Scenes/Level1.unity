@@ -2896,21 +2896,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 596151421976652961, guid: 09596c213847a7049b461c7a8b5ee7cc, type: 3}
-      propertyPath: m_SkinWidth
-      value: 0.0001
-      objectReference: {fileID: 0}
     - target: {fileID: 596151421976652963, guid: 09596c213847a7049b461c7a8b5ee7cc, type: 3}
       propertyPath: micMultiplier
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 596151421976652963, guid: 09596c213847a7049b461c7a8b5ee7cc, type: 3}
-      propertyPath: maxNoiseRadius
-      value: 25
-      objectReference: {fileID: 0}
-    - target: {fileID: 596151421976652963, guid: 09596c213847a7049b461c7a8b5ee7cc, type: 3}
-      propertyPath: audioEnemyLayer.m_Bits
-      value: 256
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 596151421976652975, guid: 09596c213847a7049b461c7a8b5ee7cc, type: 3}
       propertyPath: m_Name
@@ -3138,7 +3126,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7467593937088603730, guid: a781ded783db1dc4faebc3985773c28e, type: 3}
       propertyPath: m_Mass
-      value: 1
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 7467593937088603735, guid: a781ded783db1dc4faebc3985773c28e, type: 3}
       propertyPath: pathType
@@ -3166,7 +3154,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7467593937088604074, guid: a781ded783db1dc4faebc3985773c28e, type: 3}
       propertyPath: forceThreshold
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7467593937088604075, guid: a781ded783db1dc4faebc3985773c28e, type: 3}
       propertyPath: m_RootOrder
