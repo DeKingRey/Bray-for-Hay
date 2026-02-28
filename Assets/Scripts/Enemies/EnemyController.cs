@@ -132,7 +132,6 @@ public class EnemyController : MonoBehaviour
 
     private void RecoverFromKnockback()
     {
-        Debug.Log("recover");
         agent.enabled = true;
         isKnocked = false;
 

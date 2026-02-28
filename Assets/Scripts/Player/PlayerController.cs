@@ -137,8 +137,8 @@ public class PlayerController : MonoBehaviour
 
         if (obj.CompareTag("Hay"))
         {
-            Debug.Log("hay!");
             Destroy(obj.gameObject);
+            GameManager.Instance.LoadScene(1); // Loads next scene
         }
     }
 }

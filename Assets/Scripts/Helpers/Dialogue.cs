@@ -14,9 +14,11 @@ public class Dialogue : MonoBehaviour
     [SerializeField] private TextMeshProUGUI textArea;
     [SerializeField] private string[] dialogueTexts;
 
+    private int totalChars;
     private bool hasStarted = false;
+    private Coroutine currentCoroutine;
 
-    public IEnumerator TypeLetters(Dictionary<char, float> intervals, float defaultInterval)
+    private IEnumerator TypeLetters(Dictionary<char, float> intervals, float defaultInterval)
     {
         hasStarted = true;
         textComplete = false;
@@ -27,10 +29,10 @@ public class Dialogue : MonoBehaviour
 
         // Force layout update
         textArea.ForceMeshUpdate();
-        int total = textArea.textInfo.characterCount; // Gets total characters
+        totalChars = textArea.textInfo.characterCount; // Gets total characters
 
         // Reveals each letter every few milliseconds
-        for (int i = 0; i < total; i++)
+        for (int i = 0; i < totalChars; i++)
         {
             // Max visible characters is used to avoid text wrapping on long words (so text is preset)
             textArea.maxVisibleCharacters = i + 1;
@@ -45,6 +47,25 @@ public class Dialogue : MonoBehaviour
         }
 
         // Will stop playing text when all text boxs done
+        if (dialogueIndex == dialogueTexts.Length - 1) 
+            dialogueComplete = true;
+        else 
+            dialogueIndex++;
+
+        textComplete = true;
+    }
+
+    public void StartDialogue(Dictionary<char, float> intervals, float defaultInterval)
+    {
+        currentCoroutine = StartCoroutine(TypeLetters(intervals, defaultInterval));
+    }
+
+    public void SkipDialogue()
+    {
+        textArea.maxVisibleCharacters = totalChars;
+        StopCoroutine(currentCoroutine);
+
+        // Skips text
         if (dialogueIndex == dialogueTexts.Length - 1) 
             dialogueComplete = true;
         else 

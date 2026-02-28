@@ -26,7 +26,9 @@ public class AudioEnemy : EnemyController
     {
         Vector3 playerDir = (player.position - transform.position).normalized;
         float playerDistance = Vector3.Distance(transform.position, player.position);
-        float radius = maxHearingDistance / playerDistance; // Sphere cast radius (larger if dist smaller)
+
+        // Sphere cast radius (larger if dist smaller)
+        float radius = maxHearingDistance / Mathf.Clamp(playerDistance, 0.1f, maxHearingDistance);
 
         state = EnemyState.Investigating;
 

@@ -9,6 +9,8 @@ TagManager:
   - Weapon
   - Hay
   - Context
+  - Force Box
+  - Enemy Dialogue
   layers:
   - Default
   - TransparentFX

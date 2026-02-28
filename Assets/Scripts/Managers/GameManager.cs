@@ -65,4 +65,20 @@ public class GameManager : MonoBehaviour
         // Event Signal
         OnGameStateChanged?.Invoke(State);
     }
+
+    /// Loads scene depending on index to add
+    /// If next level is needed to be loaded then index to add = 1
+    /// If current scene needs to be reloaded index to add = 0
+    public void LoadScene(int indexToAdd)
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+
+        int loadSceneIndex = currentSceneIndex + indexToAdd;
+
+        // Loads scene if possible
+        if (loadSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(loadSceneIndex);
+        } else Debug.Log("No more scenes");
+    }
 }

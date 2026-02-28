@@ -45,23 +45,23 @@ public class DialogueManager : MonoBehaviour
     {
         if (currentDialogue != null)
         {
-            // Plays dialogue if previous is complete and dialogue key is pressed
-            if (currentDialogue.textComplete)
+            // Handles dialogue input
+            // If all dialogue is complete, the text box will disappear
+            // If the dialogue is complete, the next will start
+            // If the key is pressed early, the dialogue will skip
+            foreach (KeyCode key in nextDialogueKeys)
             {
-                foreach (KeyCode key in nextDialogueKeys)
+                if (Input.GetKeyDown(key) || Input.GetMouseButtonDown((0)))
                 {
-                    if (Input.GetKeyDown(key))
+                    if (currentDialogue.dialogueComplete)
                     {
-                        if (currentDialogue.dialogueComplete)
-                        {
-                            currentDialogue = null;
-                            dialogueBox.SetActive(false);
-                            return;
-                        } else {
-                            currentDialogue.StartCoroutine(currentDialogue.TypeLetters(intervalLookup, defaultInterval));
-                        }
-                            
-                    }
+                        currentDialogue = null;
+                        dialogueBox.SetActive(false);
+                        return;
+                    } else if (currentDialogue.textComplete) 
+                        currentDialogue.StartDialogue(intervalLookup, defaultInterval);
+                    else currentDialogue.SkipDialogue();
+                        
                 }
             }
         }
@@ -74,6 +74,6 @@ public class DialogueManager : MonoBehaviour
         dialogueBox.SetActive(true);
 
         // Auto starts letter typing
-        currentDialogue.StartCoroutine(currentDialogue.TypeLetters(intervalLookup, defaultInterval));
+        currentDialogue.StartDialogue(intervalLookup, defaultInterval);
     }
 }
