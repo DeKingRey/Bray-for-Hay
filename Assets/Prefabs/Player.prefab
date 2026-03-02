@@ -155,16 +155,23 @@ MonoBehaviour:
   playState: 0
   gameOverState: 2
   walkSpeed: 4
-  sprintSpeed: 10
+  defaultSprintSpeed: 7
   crouchSpeed: 2
   crouchScaleY: 0.5
+  maxStamina: 15
+  regainStaminaDelay: 1
+  staminaDrainRate: 10
+  staminaRegenRate: 2
+  sliderSmoothSpeed: 10
   jumpMultiplier: 40
   maxJumpTime: 0.35
   gravity: 9.81
   fallMultiplier: 5
+  jumpStaminaLossMultiplier: 2
   createSoundInterval: 0.15
   sprintSoundRadius: 10
   walkSoundRadius: 5
+  crouchSoundRadius: 0
 --- !u!114 &596151421976652963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,10 +184,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23f13872c46b54644b766eb014291375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sampleWindow: 64
+  micMultiplier: 5
   minVolume: 0.1
   maxVolume: 5
-  micMultiplier: 5
+  sampleWindow: 64
   createSoundInterval: 0.15
   maxNoiseRadius: 25
   radiusMultiplier: 5
@@ -196,7 +203,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eff86bf04f80a34f9848317c6aaffc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slider: {fileID: 0}
   smoothSpeed: 10
 --- !u!1 &596151421976713913
 GameObject:

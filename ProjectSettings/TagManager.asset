@@ -8,9 +8,11 @@ TagManager:
   - Enemy
   - Weapon
   - Hay
-  - Context
   - Force Box
-  - Enemy Dialogue
+  - Game Over
+  - Level Complete
+  - Stamina Slider
+  - Mic Slider
   layers:
   - Default
   - TransparentFX

@@ -5,13 +5,19 @@ using UnityEngine.UI;
 
 public class VolumeDetector : MonoBehaviour
 {
-    [Header("Mic Detection")]
-    [SerializeField] private int sampleWindow = 64;
+    [Header("Microphone Detection Settings")]
+    [Tooltip("'Strength' of microphone")]
+    public float micMultiplier = 5f;
     public float minVolume = 0.1f;
     public float maxVolume = 5f;
-    public float micMultiplier = 10f;
+
+    [Tooltip("Size of the audio sample chunk used for volume detection. Lower - more reactive")]
+    [SerializeField] private int sampleWindow = 64;
+
+    [Space(10)]
 
     [Header("Audio Enemy Detection")]
+    [Tooltip("How often sound is made. E.g. from footsteps")]
     [SerializeField] private float createSoundInterval = 0.15f;
     [SerializeField] private float maxNoiseRadius = 10f;
     [SerializeField] private float radiusMultiplier = 5f;

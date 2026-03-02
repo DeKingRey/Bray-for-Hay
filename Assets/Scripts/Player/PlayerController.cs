@@ -1,25 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private GameManager.GameState playState;
     [SerializeField] private GameManager.GameState gameOverState;
 
-    [Header("Movement")]
+    [Header("Movement Settings")]
     [SerializeField] private float walkSpeed;
-    [SerializeField] private float sprintSpeed;
+    [SerializeField] private float defaultSprintSpeed;
     [SerializeField] private float crouchSpeed;
+
+    [Tooltip("How much smaller the player gets when crouching")]
     [SerializeField] private float crouchScaleY;
 
-    [Header("Jumping")]
+    [Space(10)]
+
+    [Header("Stamina Settings")]
+
+    [Tooltip("The max stamina - the y intercept")]
+    [SerializeField] private float maxStamina;
+    
+    [Tooltip("Delay before stamina starts regenerating")]
+    [SerializeField] private float regainStaminaDelay;
+
+    [Tooltip("Change in stamina per second when losing stamina")]
+    [SerializeField] private float staminaDrainRate;
+
+    [Tooltip("Change in stamina per second when gaining stamina")]
+    [SerializeField] private float staminaRegenRate;
+    [SerializeField] private float sliderSmoothSpeed = 10f;
+
+    [Space(10)]
+
+    [Header("Jump Settings")]
     [SerializeField] private float jumpMultiplier = 40f;
     [SerializeField] private float maxJumpTime = 0.25f;
     [SerializeField] private float gravity = 9.81f;
     [SerializeField] private float fallMultiplier;
+    [SerializeField] private float jumpStaminaLossMultiplier;
 
-    [Header("Sound")]
+    [Space(10)]
+
+    [Header("Audio Detection Settings")]
     [SerializeField] private float createSoundInterval = 0.15f;
     [SerializeField] private float sprintSoundRadius = 10f;
     [SerializeField] private float walkSoundRadius = 5f;
@@ -30,6 +55,13 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller;
 
     private Vector3 moveDirection;
+
+    private Slider staminaSlider; 
+    private float currentStamina;
+    private float smoothedSprintValue;
+    
+    private bool staminaDelayActive = false;
+    private bool canRegainStamina = false;
 
     private bool canMove = true;
     private bool isSprinting;
@@ -44,6 +76,9 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        staminaSlider = GameObject.FindWithTag("Stamina Slider").GetComponent<Slider>();
+
+        currentStamina = maxStamina;
     }
 
     void Update()
@@ -77,6 +112,9 @@ public class PlayerController : MonoBehaviour
         if (isSprinting) isCrouching = false;
         if (isCrouching) isSprinting = false;
 
+        float sprintSpeed = defaultSprintSpeed;
+        if (currentStamina <= 0.25f) sprintSpeed = walkSpeed;
+
         // Current speed is dependent on whether the player is sprinting/crouching (speed is then multiplied by input)
         float currentSpeedX = canMove ? (isSprinting ? sprintSpeed : isCrouching ? crouchSpeed : walkSpeed) 
                                             * Input.GetAxis("Vertical") : 0;
@@ -98,7 +136,7 @@ public class PlayerController : MonoBehaviour
         #endregion
 
         #region Handles Jumping
-        if (Input.GetButton("Jump") && canMove && controller.isGrounded)
+        if (Input.GetButton("Jump") && canMove && controller.isGrounded && currentStamina >= 0.25f)
         {
             isJumping = true;
         }
@@ -112,7 +150,10 @@ public class PlayerController : MonoBehaviour
         {
             jumpPower += Time.deltaTime;
             moveDirection.y = jumpPower * jumpMultiplier;
-            if (jumpPower >= maxJumpTime || !Input.GetButton("Jump"))
+
+            currentStamina -= staminaDrainRate * jumpStaminaLossMultiplier * Time.deltaTime;
+
+            if (jumpPower >= maxJumpTime || !Input.GetButton("Jump") || currentStamina <= 0.25f)
             {
                 isFalling = true;
                 isJumping = false;
@@ -128,17 +169,72 @@ public class PlayerController : MonoBehaviour
 
         #endregion
 
+        #region Handles Sprinting
+
+        currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
+
+        // Decreases stamina while sprinting
+        if (isSprinting && currentStamina > 0f)
+        {
+            currentStamina -= staminaDrainRate * Time.deltaTime;
+        } 
+        else
+        {
+            // Regains stamina after a short delay, stops if stamina has reached max
+            if (!staminaDelayActive && currentStamina < maxStamina)
+                StartCoroutine(RegainStaminaDelay());
+
+            if (canRegainStamina)
+            {
+                currentStamina += staminaRegenRate * Time.deltaTime;
+
+                // Stops gaining stamina when current has reached max
+                if (currentStamina >= maxStamina)
+                {
+                    currentStamina = maxStamina;
+                    canRegainStamina = false;
+                }
+            }
+        }
+
+        // Smoothly increases the stamina slider
+        smoothedSprintValue = Mathf.Lerp(smoothedSprintValue, currentStamina, sliderSmoothSpeed * Time.deltaTime);
+        staminaSlider.value = Mathf.Clamp(smoothedSprintValue, 0f, staminaSlider.maxValue);
+
+        #endregion
+
         controller.Move(moveDirection * Time.deltaTime);
+    }
+
+    IEnumerator RegainStaminaDelay()
+    {
+        float elapsedTime = 0f;
+        staminaDelayActive = true;
+
+        while (elapsedTime <= regainStaminaDelay)
+        {
+            if (isSprinting)
+            {
+                staminaDelayActive = false;
+                break;
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        staminaDelayActive = false;
+        canRegainStamina = true;
     }
 
     void OnTriggerEnter(Collider obj)
     {
-        //if (obj.CompareTag("Weapon")) GameManager.Instance.ChangeState(gameOverState, 0);
+        if (obj.CompareTag("Weapon")) GameManager.Instance.ChangeState(gameOverState, 0);
 
         if (obj.CompareTag("Hay"))
         {
             Destroy(obj.gameObject);
-            GameManager.Instance.LoadScene(1); // Loads next scene
+            GameManager.Instance.ChangeState(GameManager.GameState.LevelComplete, 0);
         }
     }
 }

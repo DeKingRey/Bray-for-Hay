@@ -6,15 +6,16 @@ using UnityEngine.UI;
 public class VoiceFeedbackController : MonoBehaviour
 {
     [Header("Mic Input Slider")]
-    [SerializeField] private Slider slider;
     [SerializeField] private float smoothSpeed = 10f;
 
+    private Slider slider;
     private VolumeDetector volumeDetector;
     private float smoothedVolume;
 
     void Start()
     {
         volumeDetector = FindObjectOfType<VolumeDetector>();
+        slider = GameObject.FindWithTag("Mic Slider").GetComponent<Slider>();
     }
 
     void Update()

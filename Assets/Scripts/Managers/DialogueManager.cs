@@ -43,27 +43,31 @@ public class DialogueManager : MonoBehaviour
 
     void Update()
     {
-        if (currentDialogue != null)
+        bool pressed = false;
+
+        // Handles dialogue input
+        foreach (KeyCode key in nextDialogueKeys)
         {
-            // Handles dialogue input
-            // If all dialogue is complete, the text box will disappear
-            // If the dialogue is complete, the next will start
-            // If the key is pressed early, the dialogue will skip
-            foreach (KeyCode key in nextDialogueKeys)
+            if (Input.GetKeyDown(key))
+                pressed = true;
+                break;
+        }
+
+        if (Input.GetMouseButtonDown((0))) pressed = true;
+
+        // If all dialogue is complete, the text box will disappear
+        // If the dialogue is complete, the next will start
+        // If the key is pressed early, the dialogue will skip
+        if (pressed && currentDialogue != null)
+        {
+            if (currentDialogue.dialogueComplete)
             {
-                if (Input.GetKeyDown(key) || Input.GetMouseButtonDown((0)))
-                {
-                    if (currentDialogue.dialogueComplete)
-                    {
-                        currentDialogue = null;
-                        dialogueBox.SetActive(false);
-                        return;
-                    } else if (currentDialogue.textComplete) 
-                        currentDialogue.StartDialogue(intervalLookup, defaultInterval);
-                    else currentDialogue.SkipDialogue();
-                        
-                }
-            }
+                currentDialogue = null;
+                dialogueBox.SetActive(false);
+                return;
+            } else if (currentDialogue.textComplete) 
+                currentDialogue.StartDialogue(intervalLookup, defaultInterval);
+            else currentDialogue.SkipDialogue();
         }
     }
 

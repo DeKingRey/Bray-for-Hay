@@ -11,7 +11,7 @@ public class SightEnemy : EnemyController
     {
         base.Update();
 
-        if (isKnocked) return;
+        if (isKnocked || inProximity) return;
 
         // Checks range from player
         bool inPlayerRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
@@ -30,8 +30,12 @@ public class SightEnemy : EnemyController
             return;
         }
 
+        if (!Physics.Raycast(transform.position, playerDir, detectionRadius, playerLayer)) return;
+
+        float playerDistance = Vector3.Distance(transform.position, player.position);
+
         // Changes enemy state
-        if (inAttackRange) state = EnemyState.Attacking;
+        if (inAttackRange) StartCoroutine(ShootDelay(playerDistance));
         else state = EnemyState.Investigating;
     }
 }

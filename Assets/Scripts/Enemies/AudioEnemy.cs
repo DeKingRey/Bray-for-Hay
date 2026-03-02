@@ -7,8 +7,6 @@ public class AudioEnemy : EnemyController
     [Header("Hearing")]
     [SerializeField] private float maxHearingDistance = 18f;
     [SerializeField] private float minShootDelayDistance;
-    [SerializeField] private float minDelayDuration;
-    [SerializeField] private float maxDelayDuration;
 
     private VolumeDetector detector;
 
@@ -24,6 +22,8 @@ public class AudioEnemy : EnemyController
     /// If the player is beyond the hearing distance, the enemy will just investigate
     public void Investigate()
     {
+        if (inProximity) return;
+        
         Vector3 playerDir = (player.position - transform.position).normalized;
         float playerDistance = Vector3.Distance(transform.position, player.position);
 
@@ -39,16 +39,5 @@ public class AudioEnemy : EnemyController
             if (playerDistance < maxHearingDistance) StartCoroutine(ShootDelay(playerDistance));
             else state = EnemyState.Investigating;
         }
-    }
-
-    /// Starts a delay for shooting
-    /// The closer the player is the sooner the enemy will shoot
-    IEnumerator ShootDelay(float distance)
-    {
-        float duration = maxDelayDuration;
-        if (distance <= minShootDelayDistance) duration = minDelayDuration;
-
-        yield return new WaitForSeconds(duration);
-        state = EnemyState.Attacking;
     }
 }

@@ -67,7 +67,8 @@ public class TutorialTasks : MonoBehaviour
     /// Player has to read context first
     public void ContextTask()
     {
-        Dialogue contextDialogue = GameObject.FindWithTag("Context")?.GetComponent<Dialogue>();
+        string dialogueName = $"{tasks[currentTaskIndex].taskName} Dialogue";
+        Dialogue contextDialogue = GameObject.Find(dialogueName)?.GetComponent<Dialogue>();
         if (contextDialogue.dialogueComplete)
             tasks[currentTaskIndex].OnComplete.Invoke();
     }
@@ -75,35 +76,50 @@ public class TutorialTasks : MonoBehaviour
     /// Player has to jump
     public void JumpTask()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) tasks[currentTaskIndex].OnComplete.Invoke();
+        string dialogueName = $"{tasks[currentTaskIndex].taskName} Dialogue";
+        Dialogue contextDialogue = GameObject.Find(dialogueName)?.GetComponent<Dialogue>();
+        if (contextDialogue.dialogueComplete)
+            if (Input.GetKeyDown(KeyCode.Space)) tasks[currentTaskIndex].OnComplete.Invoke();
     }
 
     // Player has to sprint
     public void SprintTask()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift)) tasks[currentTaskIndex].OnComplete.Invoke();
+        string dialogueName = $"{tasks[currentTaskIndex].taskName} Dialogue";
+        Dialogue contextDialogue = GameObject.Find(dialogueName)?.GetComponent<Dialogue>();
+        if (contextDialogue.dialogueComplete)
+            if (Input.GetKeyDown(KeyCode.LeftShift)) tasks[currentTaskIndex].OnComplete.Invoke();
     }
 
     /// Player has to crouch
     public void CrouchTask()
     {
-        if (Input.GetKeyDown(KeyCode.LeftControl)) tasks[currentTaskIndex].OnComplete.Invoke();
+        string dialogueName = $"{tasks[currentTaskIndex].taskName} Dialogue";
+        Dialogue contextDialogue = GameObject.Find(dialogueName)?.GetComponent<Dialogue>();
+        if (contextDialogue.dialogueComplete)
+            if (Input.GetKeyDown(KeyCode.LeftControl)) tasks[currentTaskIndex].OnComplete.Invoke();
     }
 
     /// Player has to use voice to blow away box
     public void VoiceTask()
     {
-        // Checks if any boxes have been moved
-        foreach (Box box in boxes)
+        string dialogueName = $"{tasks[currentTaskIndex].taskName} Dialogue";
+        Dialogue contextDialogue = GameObject.Find(dialogueName)?.GetComponent<Dialogue>();
+        if (contextDialogue.dialogueComplete)
         {
-            if (Vector3.Distance(box.transform.position, box.initialPos) > 1f) 
-                tasks[currentTaskIndex].OnComplete.Invoke();
+            // Checks if any boxes have been moved
+            foreach (Box box in boxes)
+            {
+                if (Vector3.Distance(box.transform.position, box.initialPos) > 1f) 
+                    tasks[currentTaskIndex].OnComplete.Invoke();
+            }
         }
     }
 
     public void EnemyTask()
     {
-        Dialogue enemyDialogue = GameObject.FindWithTag("Enemy Dialogue")?.GetComponent<Dialogue>();
+        string dialogueName = $"{tasks[currentTaskIndex].taskName} Dialogue";
+        Dialogue enemyDialogue = GameObject.Find(dialogueName)?.GetComponent<Dialogue>();
         if (enemyDialogue.dialogueComplete)
             tasks[currentTaskIndex].OnComplete.Invoke();
     }

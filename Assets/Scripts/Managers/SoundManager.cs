@@ -33,9 +33,9 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    void Start()
+    void Update()
     {
-        player = FindObjectOfType<PlayerController>().transform;
+        if (!player) player = FindObjectOfType<PlayerController>().transform;
     }
 
     public void CreateSoundBubble(float radius)

@@ -23,11 +23,17 @@ public class EnemyController : MonoBehaviour
     [Header("Detection")]
     [SerializeField] protected LayerMask playerLayer;
     [SerializeField] protected float detectionRadius;
+    [SerializeField] private float proximityRadius;
 
-    [Header("Combat")]
+    [Header("Attacking")]
     [SerializeField] protected float attackRange;
     [SerializeField] private float attackCooldown;
     [SerializeField] protected GameObject projectile;
+
+    [Header("Shoot Delays")]
+    [SerializeField] protected float minShootDistance;
+    [SerializeField] protected float minDelayDuration;
+    [SerializeField] protected float maxDelayDuration;
 
     protected NavMeshAgent agent;
     private EnemyPath path;
@@ -36,6 +42,7 @@ public class EnemyController : MonoBehaviour
     private float elapsedTime = 0f;
     [HideInInspector] public bool isKnocked = false;
     protected bool canAttack = true;
+    protected bool inProximity = false;
     public EnemyState state = EnemyState.Patrolling;
     
     protected Transform player;
@@ -63,6 +70,11 @@ public class EnemyController : MonoBehaviour
             if (rb.velocity.magnitude <= knockbackRecoveryThreshold) RecoverFromKnockback();
             else return;
         }
+
+        // Proximity radius will be quite a small sphere, checking if the player is extremely close to the player
+        // This simulates the enemy 'feeling' the player
+        inProximity = Physics.CheckSphere(transform.position, proximityRadius, playerLayer);
+        if (inProximity) StartCoroutine(ShootDelay(minShootDistance));
 
         if (state == EnemyState.Patrolling) Patrolling();
         else
@@ -92,6 +104,17 @@ public class EnemyController : MonoBehaviour
         // Will make the enemy stop when they are within attack range
         if (agent.remainingDistance >= attackRange) agent.destination = player.position;
         else agent.destination = transform.position;
+    }
+
+    /// Starts a delay for shooting
+    /// The closer the player is the sooner the enemy will shoot
+    protected IEnumerator ShootDelay(float distance)
+    {
+        float duration = Random.Range(minDelayDuration, maxDelayDuration);
+        if (distance <= minShootDistance) duration = minDelayDuration;
+
+        yield return new WaitForSeconds(duration);
+        state = EnemyState.Attacking;
     }
 
     protected void Attacking()
@@ -124,7 +147,7 @@ public class EnemyController : MonoBehaviour
         isKnocked = true;
         agent.enabled = false;
 
-        animator.enabled = false;
+        if (animator) animator.enabled = false;
         EnableRagdoll();
 
         StartCoroutine(KnockedOutTimer());
@@ -135,7 +158,7 @@ public class EnemyController : MonoBehaviour
         agent.enabled = true;
         isKnocked = false;
 
-        animator.enabled = true;
+        if (animator) animator.enabled = true;
 
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
@@ -153,7 +176,7 @@ public class EnemyController : MonoBehaviour
 
     void EnableRagdoll()
     {
-        animator.enabled = false;
+        if (animator) animator.enabled = false;
         Collider[] colliders = this.gameObject.GetComponentsInChildren<Collider>();
 
         foreach (Collider c in colliders)
@@ -195,11 +218,11 @@ public class EnemyController : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
 
-        animator.enabled = true;
+        if (animator) animator.enabled = true;
 
         // Resets bones to default pose
-        animator.Rebind();
-        animator.Update(0f);
+        if (animator) animator.Rebind();
+        if (animator) animator.Update(0f);
     }
 
     void OnDrawGizmosSelected()
@@ -208,5 +231,7 @@ public class EnemyController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, proximityRadius);
     }
 }

@@ -357,19 +357,22 @@ MonoBehaviour:
   waitTime: 1.5
   knockbackRecoveryThreshold: 0.1
   knockbackRecoveryTime: 3
-  forceThreshold: 10
+  forceThreshold: 100
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
   detectionRadius: 25
+  proximityRadius: 1.5
   attackRange: 15
   attackCooldown: 2
   projectile: {fileID: 1841790519986745609, guid: 83b7d841dcabb774cb2bb30c823d0a33, type: 3}
-  isKnocked: 0
-  maxHearingDistance: 18
-  minShootDelayDistance: 4
+  minShootDistance: 4
   minDelayDuration: 0.5
   maxDelayDuration: 1
+  isKnocked: 0
+  state: 0
+  maxHearingDistance: 18
+  minShootDelayDistance: 4
 --- !u!114 &7467593937088603735
 MonoBehaviour:
   m_ObjectHideFlags: 0

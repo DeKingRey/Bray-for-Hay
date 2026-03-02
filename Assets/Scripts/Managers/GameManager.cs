@@ -15,8 +15,15 @@ public class GameManager : MonoBehaviour
         Playing,
         Paused,
         GameOver,
-        Menu
+        Menu,
+        LevelComplete
     }
+
+    private Animator gameOverAnim;
+    private bool gameOver;
+
+    private Animator levelCompleteAnim;
+    private bool levelComplete;
 
     void Awake()
     {
@@ -29,6 +36,41 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    void Update()
+    {
+        if (!gameOverAnim)
+        {
+            GameObject gameOverUI = GameObject.FindWithTag("Game Over");
+            if (gameOverUI != null) gameOverAnim = gameOverUI.GetComponent<Animator>();
+        }
+        if (!levelCompleteAnim)
+        {
+            GameObject levelCompleteUI = GameObject.FindWithTag("Level Complete");
+            if (levelCompleteUI != null) levelCompleteAnim = levelCompleteUI.GetComponent<Animator>();
+        }
+
+        // Restarts level if space is pressed after game over
+        if (gameOver)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                ChangeState(GameState.Playing, 0);
+                gameOver = false;
+                LoadScene(0);
+            }
+        }
+        
+        if (levelComplete)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                ChangeState(GameState.Playing, 0);
+                levelComplete = false;
+                LoadScene(1);
+            }
+        }  
     }
 
     public void ChangeState(GameState newState, float delay)
@@ -55,10 +97,14 @@ public class GameManager : MonoBehaviour
             case GameState.Paused:  
                 break;
             case GameState.GameOver:
-                //SceneManager.LoadScene("Game");
-                //ChangeState(GameState.Playing, 0);
+                gameOver = true;
+                gameOverAnim.SetTrigger("Activate");
                 break;
             case GameState.Menu:
+                break;
+            case GameState.LevelComplete:
+                levelComplete = true;
+                levelCompleteAnim.SetTrigger("Activate");
                 break;
         }
         
@@ -79,6 +125,6 @@ public class GameManager : MonoBehaviour
         if (loadSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             SceneManager.LoadScene(loadSceneIndex);
-        } else Debug.Log("No more scenes");
+        } else SceneManager.LoadScene(0); // Loads initial scene when complete
     }
 }

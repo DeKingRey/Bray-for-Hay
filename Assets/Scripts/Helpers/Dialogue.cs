@@ -64,7 +64,7 @@ public class Dialogue : MonoBehaviour
     {
         textArea.maxVisibleCharacters = totalChars;
         StopCoroutine(currentCoroutine);
-
+    
         // Skips text
         if (dialogueIndex == dialogueTexts.Length - 1) 
             dialogueComplete = true;

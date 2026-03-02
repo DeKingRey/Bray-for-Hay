@@ -38,6 +38,7 @@ public class VoiceForceReceiver : MonoBehaviour
             {
                 if (!enemy.isKnocked && forceAmount.magnitude >= enemy.forceThreshold)
                 {
+                    Debug.Log(forceAmount.magnitude);
                     enemy.ApplyKnockback();
                     rb.AddForce(forceAmount, ForceMode.Impulse); 
                 }
