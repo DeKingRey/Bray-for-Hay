@@ -23,6 +23,9 @@ public class VoiceForceReceiver : MonoBehaviour
         if (other.gameObject.CompareTag("Force Area"))
         {
             Vector3 forceDirection = transform.position - other.gameObject.transform.position;
+            forceDirection.y = 0.3f;
+            forceDirection.Normalize();
+
             float sourceDistance = Vector3.Distance(transform.position, other.gameObject.transform.position);
 
             float volumeForceMultiplier = volumeDetector.VolumeFromMicrophone() * volumeDetector.micMultiplier;
@@ -38,7 +41,7 @@ public class VoiceForceReceiver : MonoBehaviour
             {
                 if (!enemy.isKnocked && forceAmount.magnitude >= enemy.forceThreshold)
                 {
-                    Debug.Log(forceAmount.magnitude);
+                    rb.isKinematic = false;
                     enemy.ApplyKnockback();
                     rb.AddForce(forceAmount, ForceMode.Impulse); 
                 }

@@ -58,7 +58,7 @@ public class EnemyController : MonoBehaviour
         agent.destination = path.GetCurrentWaypoint();
         player = GameObject.FindWithTag("Player").transform;
 
-        DisableRagdoll();
+        //rb.isKinematic = true;
     }
 
     protected virtual void Update()
@@ -90,10 +90,14 @@ public class EnemyController : MonoBehaviour
         // Once arrived at current waypoint, go to next one (after delay)
         if (agent.remainingDistance <= 0.1f)
         {
+            agent.isStopped = true;
+            animator.enabled = false;
             elapsedTime += Time.deltaTime;
             if (elapsedTime >= waitTime)
             {
                 elapsedTime = 0f;
+                agent.isStopped = false;
+                animator.enabled = true;
                 agent.destination = path.GetNextWaypoint();
             }
         }
@@ -147,8 +151,10 @@ public class EnemyController : MonoBehaviour
         isKnocked = true;
         agent.enabled = false;
 
+        rb.drag = 2f;
+        rb.angularDrag = 2f;
+
         if (animator) animator.enabled = false;
-        EnableRagdoll();
 
         StartCoroutine(KnockedOutTimer());
     }
@@ -160,10 +166,11 @@ public class EnemyController : MonoBehaviour
 
         if (animator) animator.enabled = true;
 
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+        rb.drag = 0f;
+        rb.angularDrag = 0.05f;
 
-        DisableRagdoll();
+        //rb.isKinematic = true;
+
         agent.Warp(transform.position); // Tells agent new position
     }
 
@@ -171,7 +178,7 @@ public class EnemyController : MonoBehaviour
     {
         yield return new WaitForSeconds(knockbackRecoveryTime);
 
-        RecoverFromKnockback();
+        if (isKnocked) RecoverFromKnockback();
     }
 
     void EnableRagdoll()
