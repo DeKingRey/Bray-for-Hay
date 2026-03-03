@@ -13,31 +13,55 @@ public class EnemyController : MonoBehaviour
     }
 
     [SerializeField] private GameManager.GameState playState;
+    
+    [Header("Force Settings")]
+    public Rigidbody hips;
+
+    [Tooltip("Maximum velocity needed to recover from knockback")]
+    [SerializeField] private float knockbackRecoveryThreshold = 0.1f;
+
+    [Tooltip("Max time enemy will be knocked out")]
+    [SerializeField] private float maxKnockbackTime = 3f;
+
+    [SerializeField] private float maxExpectedForce = 1f;
+
+    [Tooltip("Minimum Force to Apply Knockback")]
+    public float forceThreshold;
+
+    [Space(10)]
 
     [Header("Pathfinding")]
     [SerializeField] private float waitTime;
-    [SerializeField] private float knockbackRecoveryThreshold = 0.1f;
-    [SerializeField] private float knockbackRecoveryTime = 3f;
-    public float forceThreshold;
+
+    [Space(10)]
 
     [Header("Detection")]
     [SerializeField] protected LayerMask playerLayer;
     [SerializeField] protected float detectionRadius;
+
+    [Tooltip("Radius for enemy to notice player regardless of sight/hearing (feeling)")]
     [SerializeField] private float proximityRadius;
+
+    [Space(10)]
 
     [Header("Attacking")]
     [SerializeField] protected float attackRange;
     [SerializeField] private float attackCooldown;
     [SerializeField] protected GameObject projectile;
 
+    [Space(10)]
+
     [Header("Shoot Delays")]
     [SerializeField] protected float minShootDistance;
     [SerializeField] protected float minDelayDuration;
     [SerializeField] protected float maxDelayDuration;
 
+    [Space(10)]
+
     protected NavMeshAgent agent;
     private EnemyPath path;
     private Rigidbody rb;
+    private Collider collider;
 
     private float elapsedTime = 0f;
     [HideInInspector] public bool isKnocked = false;
@@ -53,23 +77,20 @@ public class EnemyController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         path = GetComponent<EnemyPath>();
         rb = GetComponent<Rigidbody>();
+        collider = GetComponent<Collider>();
         animator = GetComponentInChildren<Animator>();
 
         agent.destination = path.GetCurrentWaypoint();
         player = GameObject.FindWithTag("Player").transform;
 
-        //rb.isKinematic = true;
+        DisableRagdoll();
     }
 
     protected virtual void Update()
     {
         if (GameManager.Instance.State != playState) return;
 
-        if (isKnocked)
-        {
-            if (rb.velocity.magnitude <= knockbackRecoveryThreshold) RecoverFromKnockback();
-            else return;
-        }
+        if (isKnocked) return;
 
         // Proximity radius will be quite a small sphere, checking if the player is extremely close to the player
         // This simulates the enemy 'feeling' the player
@@ -146,90 +167,101 @@ public class EnemyController : MonoBehaviour
         canAttack = true;
     }
 
-    public void ApplyKnockback()
+    public void ApplyKnockback(float forceAmount)
     {
+        if (isKnocked) return;
+
         isKnocked = true;
-        agent.enabled = false;
+        
+        EnableRagdoll();
 
-        rb.drag = 2f;
-        rb.angularDrag = 2f;
-
-        if (animator) animator.enabled = false;
-
-        StartCoroutine(KnockedOutTimer());
+        // Scales knockout duration with forceamount
+        float normalizedForce = Mathf.Clamp01(forceAmount / maxExpectedForce);
+        float koDuration = maxKnockbackTime * normalizedForce;
+        StartCoroutine(KnockedOutTimer(koDuration));
     }
 
     private void RecoverFromKnockback()
     {
-        agent.enabled = true;
+        DisableRagdoll();
+
         isKnocked = false;
-
-        if (animator) animator.enabled = true;
-
-        rb.drag = 0f;
-        rb.angularDrag = 0.05f;
-
-        //rb.isKinematic = true;
-
-        agent.Warp(transform.position); // Tells agent new position
     }
 
-    IEnumerator KnockedOutTimer()
+    IEnumerator KnockedOutTimer(float duration)
     {
-        yield return new WaitForSeconds(knockbackRecoveryTime);
+        yield return new WaitForSeconds(duration);
 
         if (isKnocked) RecoverFromKnockback();
     }
 
     void EnableRagdoll()
     {
+        // Ensures root doesn't fight with ragdoll
+        agent.enabled = false;
+        collider.isTrigger = true;
+        rb.isKinematic = true;
         if (animator) animator.enabled = false;
-        Collider[] colliders = this.gameObject.GetComponentsInChildren<Collider>();
 
-        foreach (Collider c in colliders)
+        // Enables all rbs in ragdoll
+        foreach (Rigidbody rb in GetComponentsInChildren<Rigidbody>())
         {
-            if (c.gameObject != this.gameObject)
+            if (rb.gameObject != gameObject)
             {
-                c.isTrigger = false;
+                rb.isKinematic = false;
             }
         }
 
-        Rigidbody[] rbs = this.gameObject.GetComponentsInChildren<Rigidbody>();
-
-        foreach (Rigidbody rb in rbs)
+        // Enables all ragdoll colliders
+        foreach (Collider c in GetComponentsInChildren<Collider>())
         {
-            if (rb.gameObject != this.gameObject)
+            if (c.gameObject != gameObject)
             {
-                rb.isKinematic = false;
+                c.isTrigger = false;
             }
         }
     }
 
     void DisableRagdoll()
     {
+        Vector3 ragdollPosition = hips.position;
+
+        // Disables rbs in ragdoll
         foreach (Rigidbody rb in GetComponentsInChildren<Rigidbody>())
         {
-            if (rb.gameObject != this.gameObject)
+            if (rb.gameObject != gameObject)
             {
                 rb.isKinematic = true;
             }
         }
 
+        // Disbales colliders in ragdoll
         foreach (Collider c in GetComponentsInChildren<Collider>())
         {
-            if (c.gameObject != this.gameObject)
+            if (c.gameObject != gameObject)
             {
                 c.isTrigger = true;
             }
         }
 
+        // Reforms position and components of root
+        transform.position = ragdollPosition;
+
+        rb.isKinematic = true;
+        collider.isTrigger = false;
+
         transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
 
-        if (animator) animator.enabled = true;
-
         // Resets bones to default pose
-        if (animator) animator.Rebind();
-        if (animator) animator.Update(0f);
+        if (animator) 
+        {
+            animator.enabled = true;
+            animator.Rebind();
+            animator.Update(0f);
+        }
+
+        agent.enabled = true;
+        agent.Warp(transform.position);
     }
 
     void OnDrawGizmosSelected()

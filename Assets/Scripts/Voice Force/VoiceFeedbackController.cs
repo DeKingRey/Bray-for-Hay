@@ -16,11 +16,12 @@ public class VoiceFeedbackController : MonoBehaviour
     {
         volumeDetector = FindObjectOfType<VolumeDetector>();
         slider = GameObject.FindWithTag("Mic Slider").GetComponent<Slider>();
+        slider.maxValue = volumeDetector.maxVolume;
     }
 
     void Update()
     {
-        float rawVolume = volumeDetector.VolumeFromMicrophone() * volumeDetector.micMultiplier * 1.5f;
+        float rawVolume = volumeDetector.VolumeFromMicrophone();
         if (rawVolume < volumeDetector.minVolume) rawVolume = 0f;
 
         smoothedVolume = Mathf.Lerp(smoothedVolume, rawVolume, smoothSpeed * Time.deltaTime);

@@ -5,9 +5,19 @@ using UnityEngine.UI;
 
 public class VolumeDetector : MonoBehaviour
 {
-    [Header("Microphone Detection Settings")]
+    [Header("Microphone Force Settings")]
     [Tooltip("'Strength' of microphone")]
     public float micMultiplier = 5f;
+
+    [Tooltip("Adds lift to the force - so it goes up")]
+    public float upwardMultiplier = 0.35f;
+
+    [Tooltip("Adds a spin to the force - torque")]
+    public float torqueMultiplier = 6f;
+    public float randomTorque = 2f;
+
+
+    [Header("Microphone Detection Settings")]
     public float minVolume = 0.1f;
     public float maxVolume = 5f;
 
@@ -60,7 +70,7 @@ public class VolumeDetector : MonoBehaviour
 
     public float VolumeFromMicrophone()
     {
-        return VolumeFromClip(Microphone.GetPosition(Microphone.devices[0]), microphoneClip);
+        return Mathf.Clamp(VolumeFromClip(Microphone.GetPosition(Microphone.devices[0]), microphoneClip), 0, maxVolume);
     }
 
     float VolumeFromClip(int clipPosition, AudioClip clip)
