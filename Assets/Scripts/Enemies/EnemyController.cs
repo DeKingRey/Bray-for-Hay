@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     }
 
     [SerializeField] private GameManager.GameState playState;
+    [SerializeField] private Animator indicatorAnim;
     
     [Header("Force Settings")]
     public Rigidbody hips;
@@ -112,6 +113,8 @@ public class EnemyController : MonoBehaviour
 
     void Patrolling()
     {
+        indicatorAnim.SetTrigger("Idle");
+
         // Once arrived at current waypoint, go to next one (after delay)
         if (agent.remainingDistance <= 0.1f)
         {
@@ -130,6 +133,8 @@ public class EnemyController : MonoBehaviour
 
     void Chasing()
     {
+        indicatorAnim.SetTrigger("Suspicious");
+
         // Will make the enemy stop when they are within attack range
         if (agent.remainingDistance >= attackRange) agent.destination = player.position;
         else agent.destination = transform.position;
@@ -143,7 +148,7 @@ public class EnemyController : MonoBehaviour
         if (distance <= minShootDistance) duration = minDelayDuration;
 
         yield return new WaitForSeconds(duration);
-        state = EnemyState.Attacking;
+        Attack();
     }
 
     protected void Attacking()
@@ -174,7 +179,10 @@ public class EnemyController : MonoBehaviour
         }
 
         transform.rotation = targetRotation;
-        Attack(); // Make shoot delay happen when turned round
+        indicatorAnim.SetTrigger("Alert");
+        
+        float playerDistance = Vector3.Distance(transform.position, player.position);
+        StartCoroutine(ShootDelay(playerDistance));
     }
 
     void Attack()
@@ -200,6 +208,7 @@ public class EnemyController : MonoBehaviour
         isKnocked = true;
         
         EnableRagdoll();
+        indicatorAnim.SetTrigger("Idle");
 
         // Scales knockout duration with forceamount
         float normalizedForce = Mathf.Clamp01(forceAmount / maxExpectedForce);

@@ -35,7 +35,7 @@ public class SightEnemy : EnemyController
         float playerDistance = Vector3.Distance(transform.position, player.position);
 
         // Changes enemy state
-        if (inAttackRange) StartCoroutine(ShootDelay(playerDistance));
+        if (inAttackRange) state = EnemyState.Attacking;
         else state = EnemyState.Investigating;
     }
 }

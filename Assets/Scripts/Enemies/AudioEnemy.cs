@@ -36,7 +36,7 @@ public class AudioEnemy : EnemyController
         if (Physics.SphereCast(transform.position, radius, playerDir, out hit, maxHearingDistance, playerLayer))
         {
             // Attacks if player isn't too far
-            if (playerDistance < maxHearingDistance) StartCoroutine(ShootDelay(playerDistance));
+            if (playerDistance < maxHearingDistance) state = EnemyState.Attacking;
             else state = EnemyState.Investigating;
         }
     }
