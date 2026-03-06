@@ -51,7 +51,7 @@ public class SoundManager : MonoBehaviour
         Collider[] targets = Physics.OverlapSphere(player.position, radius, audioEnemyLayer);
         foreach (Collider target in targets)
         {
-            AudioEnemy enemy = target.gameObject.GetComponent<AudioEnemy>();
+            AudioEnemy enemy = target.gameObject.GetComponentInParent<AudioEnemy>();
             enemy.Investigate();
         }
     }

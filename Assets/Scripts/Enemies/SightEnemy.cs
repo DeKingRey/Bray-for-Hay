@@ -12,6 +12,7 @@ public class SightEnemy : EnemyController
         base.Update();
 
         if (isKnocked || inProximity) return;
+        if (isAlert) StartCoroutine(OnAlert());
 
         // Checks range from player
         bool inPlayerRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
@@ -37,5 +38,15 @@ public class SightEnemy : EnemyController
         // Changes enemy state
         if (inAttackRange) state = EnemyState.Attacking;
         else state = EnemyState.Investigating;
+    }
+
+    private IEnumerator OnAlert()
+    {
+        isAlert = false;
+        float defaultVisionAngle = visionAngle;
+
+        visionAngle *= alertMultiplier;
+
+        yield return new WaitForSeconds(alertDuration);
     }
 }

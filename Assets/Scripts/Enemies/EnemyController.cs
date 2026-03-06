@@ -13,6 +13,7 @@ public class EnemyController : MonoBehaviour
     }
 
     [SerializeField] private GameManager.GameState playState;
+    public EnemyState state = EnemyState.Patrolling;
     [SerializeField] private Animator indicatorAnim;
     
     [Header("Force Settings")]
@@ -47,6 +48,10 @@ public class EnemyController : MonoBehaviour
     [Tooltip("Radius for enemy to notice player regardless of sight/hearing (feeling)")]
     [SerializeField] private float proximityRadius;
 
+    [Tooltip("Multiplies hearing/sight when on alert")]
+    [SerializeField] protected float alertMultiplier = 1.5f;
+    [SerializeField] protected float alertDuration = 3f;
+
     [Space(10)]
 
     [Header("Attacking")]
@@ -72,7 +77,7 @@ public class EnemyController : MonoBehaviour
     [HideInInspector] public bool isKnocked = false;
     protected bool canAttack = true;
     protected bool inProximity = false;
-    public EnemyState state = EnemyState.Patrolling;
+    protected bool isAlert = false;
     
     protected Transform player;
     private Animator animator;
@@ -100,7 +105,7 @@ public class EnemyController : MonoBehaviour
         // Proximity radius will be quite a small sphere, checking if the player is extremely close to the player
         // This simulates the enemy 'feeling' the player
         inProximity = Physics.CheckSphere(transform.position, proximityRadius, playerLayer);
-        if (inProximity) StartCoroutine(ShootDelay(minShootDistance));
+        if (inProximity) state = EnemyState.Attacking;
 
         if (state == EnemyState.Patrolling) Patrolling();
         else
@@ -113,7 +118,7 @@ public class EnemyController : MonoBehaviour
 
     void Patrolling()
     {
-        indicatorAnim.SetTrigger("Idle");
+        UpdateIndicators(true, false, false); // Sets indicator to idle
 
         // Once arrived at current waypoint, go to next one (after delay)
         if (agent.remainingDistance <= 0.1f)
@@ -128,27 +133,20 @@ public class EnemyController : MonoBehaviour
                 animator.enabled = true;
                 agent.destination = path.GetNextWaypoint();
             }
-        }
+        } else agent.isStopped = false;
     }
 
     void Chasing()
     {
-        indicatorAnim.SetTrigger("Suspicious");
+        UpdateIndicators(false, true, false); // Sets indicator to suspicious
 
         // Will make the enemy stop when they are within attack range
-        if (agent.remainingDistance >= attackRange) agent.destination = player.position;
-        else agent.destination = transform.position;
-    }
-
-    /// Starts a delay for shooting
-    /// The closer the player is the sooner the enemy will shoot
-    protected IEnumerator ShootDelay(float distance)
-    {
-        float duration = Random.Range(minDelayDuration, maxDelayDuration);
-        if (distance <= minShootDistance) duration = minDelayDuration;
-
-        yield return new WaitForSeconds(duration);
-        Attack();
+        if (Vector3.Distance(transform.position, player.position) >= attackRange)
+        {
+            agent.isStopped = false;
+            agent.SetDestination(player.position);
+        }
+        else agent.isStopped = true;
     }
 
     protected void Attacking()
@@ -163,6 +161,7 @@ public class EnemyController : MonoBehaviour
     private IEnumerator RotateToPlayer()
     {
         canAttack = false;
+        UpdateIndicators(false, true, false); // Sets indicator to suspicious
 
         // Gets direction towards player
         Vector3 direction = (player.position - transform.position).normalized;
@@ -179,10 +178,22 @@ public class EnemyController : MonoBehaviour
         }
 
         transform.rotation = targetRotation;
-        indicatorAnim.SetTrigger("Alert");
         
         float playerDistance = Vector3.Distance(transform.position, player.position);
         StartCoroutine(ShootDelay(playerDistance));
+    }
+
+    /// Starts a delay for shooting
+    /// The closer the player is the sooner the enemy will shoot
+    private IEnumerator ShootDelay(float distance)
+    {
+        UpdateIndicators(false, false, true); // Sets indicator to alert
+
+        float duration = Random.Range(minDelayDuration, maxDelayDuration);
+        if (distance <= minShootDistance) duration = minDelayDuration;
+
+        yield return new WaitForSeconds(duration);
+        Attack();
     }
 
     void Attack()
@@ -191,9 +202,10 @@ public class EnemyController : MonoBehaviour
         Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
         rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
 
+        isAlert = true;
+
         // Resets attack
         Invoke(nameof(ResetAttack), attackCooldown);
-        state = EnemyState.Patrolling;
     }
 
     void ResetAttack()
@@ -208,7 +220,7 @@ public class EnemyController : MonoBehaviour
         isKnocked = true;
         
         EnableRagdoll();
-        indicatorAnim.SetTrigger("Idle");
+        UpdateIndicators(true, false, false); // Sets indicator to idle
 
         // Scales knockout duration with forceamount
         float normalizedForce = Mathf.Clamp01(forceAmount / maxExpectedForce);
@@ -297,6 +309,13 @@ public class EnemyController : MonoBehaviour
 
         agent.enabled = true;
         agent.Warp(transform.position);
+    }
+
+    void UpdateIndicators(bool isIdle, bool isSuspicious, bool isAlert)
+    {
+        indicatorAnim.SetBool("isIdle", isIdle);
+        indicatorAnim.SetBool("isSuspicious", isSuspicious);
+        indicatorAnim.SetBool("isAlert", isAlert);
     }
 
     void OnDrawGizmosSelected()

@@ -7,6 +7,7 @@ public class AudioEnemy : EnemyController
     [Header("Hearing")]
     [SerializeField] private float maxHearingDistance = 18f;
     [SerializeField] private float minShootDelayDistance;
+    [SerializeField] private Transform hearingRadius;
 
     private VolumeDetector detector;
 
@@ -15,6 +16,13 @@ public class AudioEnemy : EnemyController
         base.Start();
 
         detector = FindObjectOfType<VolumeDetector>();
+    }
+
+    protected override void Update()
+    {
+        if (isKnocked || inProximity) return;
+
+        if (isAlert) StartCoroutine(OnAlert());
     }
 
     /// Sends out a sphere cast towards the player when a sound is heard
@@ -39,5 +47,18 @@ public class AudioEnemy : EnemyController
             if (playerDistance < maxHearingDistance) state = EnemyState.Attacking;
             else state = EnemyState.Investigating;
         }
+    }
+
+    /// Temporarily increases hearing radius after investigating player
+    private IEnumerator OnAlert()
+    {
+        isAlert = false;
+
+        Transform defaultHearingRadius = hearingRadius;
+        hearingRadius.localScale *= alertMultiplier;
+
+        yield return new WaitForSeconds(alertDuration);
+
+        hearingRadius = defaultHearingRadius;
     }
 }
