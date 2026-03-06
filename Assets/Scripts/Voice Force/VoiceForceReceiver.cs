@@ -29,14 +29,15 @@ public class VoiceForceReceiver : MonoBehaviour
         forceDirection.y = 0.3f;
         forceDirection.Normalize();
 
-        //float sourceDistance = Vector3.Distance(transform.position, other.gameObject.transform.position);
+        float sourceDistance = Vector3.Distance(transform.position, other.gameObject.transform.position);
+        Mathf.Clamp(sourceDistance, 1f, Mathf.Infinity);
 
         // Only proceeds if not too quiet
         float volumeForceMultiplier = detector.VolumeFromMicrophone() * detector.micMultiplier;
         if (volumeForceMultiplier < detector.minVolume) return;
 
         // Calculates base force and ensures not too small
-        Vector3 baseForce = forceDirection * volumeForceMultiplier;
+        Vector3 baseForce = (forceDirection * volumeForceMultiplier) / sourceDistance;
         if (baseForce.magnitude <= 0) return;
 
         // Choose correct rb    
@@ -56,13 +57,15 @@ public class VoiceForceReceiver : MonoBehaviour
             if (!enemy.isKnocked && baseForce.magnitude >= enemy.forceThreshold)
             {
                 enemy.ApplyKnockback(finalForce.magnitude);
+                Debug.Log(baseForce.magnitude);
             }
             else if (enemy.isKnocked) return;
+            else return;
         }
 
         // Resets velocity
-        targetRb.velocity = Vector3.zero;
-        targetRb.angularVelocity = Vector3.zero;
+        //targetRb.velocity = Vector3.zero;
+        //targetRb.angularVelocity = Vector3.zero;
         
         // Velocity change ignores mass
         targetRb.AddForce(finalForce, ForceMode.VelocityChange);

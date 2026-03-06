@@ -54,9 +54,10 @@ MonoBehaviour:
   hips: {fileID: 7848911019714942747}
   knockbackRecoveryThreshold: 0.1
   maxKnockbackTime: 3
-  maxExpectedForce: 1
-  forceThreshold: 1
+  maxExpectedForce: 5
+  forceThreshold: 20
   waitTime: 1e+11
+  rotationSpeed: 90
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -192,6 +193,10 @@ PrefabInstance:
       propertyPath: m_ConnectedAnchor.z
       value: 0.001141346
       objectReference: {fileID: 0}
+    - target: {fileID: 1453425979702340911, guid: c5be4b800f8639a43ae38ce36efdd3c6, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 5461320835613783329, guid: d69a96a616f5054418f28c78eab37ea8, type: 3}
     - target: {fileID: 1712575761173900319, guid: c5be4b800f8639a43ae38ce36efdd3c6, type: 3}
       propertyPath: m_ConnectedAnchor.x
       value: 1.2143064e-16

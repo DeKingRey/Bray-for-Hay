@@ -31,7 +31,11 @@ public class EnemyController : MonoBehaviour
     [Space(10)]
 
     [Header("Pathfinding")]
+    [Tooltip("How long the enemy will wait at a waypoint")]
     [SerializeField] private float waitTime;
+
+    [Tooltip("How fast the enemy rotates - in degrees per second")]
+    [SerializeField] private float rotationSpeed = 90f;
 
     [Space(10)]
 
@@ -145,9 +149,32 @@ public class EnemyController : MonoBehaviour
     protected void Attacking()
     {
         agent.destination = transform.position;
-        transform.LookAt(player);
 
-        if (canAttack) Attack();
+        if (canAttack) StartCoroutine(RotateToPlayer());
+    }
+
+
+    /// When attacking, the enemy rotates to the player before shooting
+    private IEnumerator RotateToPlayer()
+    {
+        canAttack = false;
+
+        // Gets direction towards player
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0f;
+
+        // Calculates target rotation with the player direction
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+        // Rotates smoothly to face the player until target rotation is more or less reached
+        while (Quaternion.Angle(transform.rotation, targetRotation) > 2f)
+        {
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        transform.rotation = targetRotation;
+        Attack(); // Make shoot delay happen when turned round
     }
 
     void Attack()
@@ -158,7 +185,6 @@ public class EnemyController : MonoBehaviour
 
         // Resets attack
         Invoke(nameof(ResetAttack), attackCooldown);
-        canAttack = false;
         state = EnemyState.Patrolling;
     }
 
