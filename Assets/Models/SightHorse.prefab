@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 3988471327413187744}
   - component: {fileID: 3518257950470067017}
   m_Layer: 0
-  m_Name: HorseHearing
+  m_Name: SightHorse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -677,7 +677,7 @@ Animator:
   m_GameObject: {fileID: 4328580632435977754}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3363f93b991e70b4196bbd633ee6693a, type: 2}
+  m_Controller: {fileID: 9100000, guid: 12dd8a785b847a845a42b83e398f9918, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -1059,7 +1059,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e8ac9745dd8d9414bb9421b67beef559, type: 2}
+  - {fileID: 2100000, guid: 566ee34358ccfe04da0e71e39ecf2e68, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1084,7 +1084,7 @@ SkinnedMeshRenderer:
   m_Quality: 0
   m_UpdateWhenOffscreen: 0
   m_SkinnedMotionVectors: 1
-  m_Mesh: {fileID: 5461320835613783329, guid: e15d9a561bae4ca419de8576c3360d65, type: 3}
+  m_Mesh: {fileID: 8833143280364805333, guid: 011c8b29710b0cb439505b78c07d1948, type: 3}
   m_Bones:
   - {fileID: 7934310392151911295}
   - {fileID: 8530217238404736975}

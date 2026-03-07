@@ -20,6 +20,7 @@ public class AudioEnemy : EnemyController
 
     protected override void Update()
     {
+        base.Update();
         if (isKnocked || inProximity) return;
 
         if (isAlert) StartCoroutine(OnAlert());
