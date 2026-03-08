@@ -51,7 +51,7 @@ public class VolumeDetector : MonoBehaviour
         if (soundTimer >= createSoundInterval)
         {
             // Radius size depends on volume of mic
-            loudness = VolumeFromMicrophone() * micMultiplier;
+            loudness = VolumeFromMicrophone();
             float currentNoiseRadius = Mathf.Clamp(loudness * radiusMultiplier, 0, maxNoiseRadius);
 
             SoundManager.Instance.CreateSoundBubble(currentNoiseRadius);

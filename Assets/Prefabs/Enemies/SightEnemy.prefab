@@ -69,7 +69,7 @@ MonoBehaviour:
   alertDuration: 3
   attackRange: 6
   attackCooldown: 3
-  projectile: {fileID: 1841790519986745609, guid: 83b7d841dcabb774cb2bb30c823d0a33, type: 3}
+  projectile: {fileID: 4069762606241335533, guid: 77e06036b34276f4988ff7e67584c65b, type: 3}
   minShootDistance: 4
   minDelayDuration: 0.5
   maxDelayDuration: 1
@@ -103,7 +103,7 @@ NavMeshAgent:
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
-  m_AngularSpeed: 120
+  m_AngularSpeed: 180
   m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
@@ -160,6 +160,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4374291007579031592}
     m_Modifications:
+    - target: {fileID: 821446224337569566, guid: 091e1540780e1074880de38b0bdf7087, type: 3}
+      propertyPath: m_Mass
+      value: 2.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1416459870320493555, guid: 091e1540780e1074880de38b0bdf7087, type: 3}
       propertyPath: m_RootOrder
       value: 0

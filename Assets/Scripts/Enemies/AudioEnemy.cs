@@ -23,7 +23,11 @@ public class AudioEnemy : EnemyController
         base.Update();
         if (isKnocked || inProximity) return;
 
-        if (isAlert) StartCoroutine(OnAlert());
+        if (isAlert)
+        {
+            isAlert = false;
+            StartCoroutine(OnAlert());
+        }
     }
 
     /// Sends out a sphere cast towards the player when a sound is heard
@@ -53,8 +57,6 @@ public class AudioEnemy : EnemyController
     /// Temporarily increases hearing radius after investigating player
     private IEnumerator OnAlert()
     {
-        isAlert = false;
-
         Transform defaultHearingRadius = hearingRadius;
         hearingRadius.localScale *= alertMultiplier;
 

@@ -12,7 +12,11 @@ public class SightEnemy : EnemyController
         base.Update();
 
         if (isKnocked || inProximity) return;
-        if (isAlert) StartCoroutine(OnAlert());
+        if (isAlert)
+        {
+            isAlert = false;
+            StartCoroutine(OnAlert());
+        }
 
         // Checks range from player
         bool inPlayerRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
@@ -30,8 +34,11 @@ public class SightEnemy : EnemyController
             state = EnemyState.Patrolling;
             return;
         }
-
-        if (!Physics.Raycast(transform.position, playerDir, detectionRadius, playerLayer)) return;
+    
+        RaycastHit hit;
+        // Returns if player is not in line of sight/an obstacle is in the way
+        if (!Physics.Raycast(transform.position, playerDir, out hit, detectionRadius)) return;
+        if (!hit.transform.CompareTag("Player")) return;
 
         float playerDistance = Vector3.Distance(transform.position, player.position);
 
@@ -42,7 +49,6 @@ public class SightEnemy : EnemyController
 
     private IEnumerator OnAlert()
     {
-        isAlert = false;
         float defaultVisionAngle = visionAngle;
 
         visionAngle *= alertMultiplier;

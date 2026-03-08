@@ -68,9 +68,9 @@ public class VoiceForceReceiver : MonoBehaviour
         //targetRb.angularVelocity = Vector3.zero;
         
         // Velocity change ignores mass
-        targetRb.AddForce(finalForce, ForceMode.VelocityChange);
+        targetRb.AddForce(finalForce, ForceMode.Impulse);
 
         // Added torque adds rotational movement - so if the enemy is pushed from behind, it falls forward
-        targetRb.AddTorque(torqueAxis * baseForce.magnitude * detector.torqueMultiplier, ForceMode.VelocityChange);
+        targetRb.AddTorque(torqueAxis * baseForce.magnitude * detector.torqueMultiplier, ForceMode.Impulse);
     }
 }

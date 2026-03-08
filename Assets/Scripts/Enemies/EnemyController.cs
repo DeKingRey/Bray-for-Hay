@@ -119,6 +119,7 @@ public class EnemyController : MonoBehaviour
     void Patrolling()
     {
         UpdateIndicators(true, false, false); // Sets indicator to idle
+        UpdateAnimator(false, true, false); // Sets anim to walking
 
         // Once arrived at current waypoint, go to next one (after delay)
         if (agent.remainingDistance <= 0.1f)
@@ -126,6 +127,9 @@ public class EnemyController : MonoBehaviour
             agent.isStopped = true;
             animator.enabled = false;
             elapsedTime += Time.deltaTime;
+            
+            UpdateAnimator(true, false, false); // Sets anim to idle
+
             if (elapsedTime >= waitTime)
             {
                 elapsedTime = 0f;
@@ -145,13 +149,19 @@ public class EnemyController : MonoBehaviour
         {
             agent.isStopped = false;
             agent.SetDestination(player.position);
+            UpdateAnimator(false, false, true); // Sets anim to running
         }
-        else agent.isStopped = true;
+        else
+        {
+            agent.isStopped = true;
+            UpdateAnimator(true, false, false); // Sets anim to idle
+        }
     }
 
     protected void Attacking()
     {
         agent.destination = transform.position;
+        UpdateAnimator(true, false, false); // Sets anim to idle
 
         if (canAttack) StartCoroutine(RotateToPlayer());
     }
@@ -162,6 +172,7 @@ public class EnemyController : MonoBehaviour
     {
         canAttack = false;
         UpdateIndicators(false, true, false); // Sets indicator to suspicious
+        UpdateAnimator(true, false, false); // Sets anim to idle
 
         // Gets direction towards player
         Vector3 direction = (player.position - transform.position).normalized;
@@ -203,6 +214,8 @@ public class EnemyController : MonoBehaviour
         rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
 
         isAlert = true;
+
+        state = EnemyState.Patrolling;
 
         // Resets attack
         Invoke(nameof(ResetAttack), attackCooldown);
@@ -316,6 +329,13 @@ public class EnemyController : MonoBehaviour
         indicatorAnim.SetBool("isIdle", isIdle);
         indicatorAnim.SetBool("isSuspicious", isSuspicious);
         indicatorAnim.SetBool("isAlert", isAlert);
+    }
+
+    void UpdateAnimator(bool isIdle, bool isWalking, bool isRunning)
+    {
+        animator.SetBool("isIdle", isIdle);
+        animator.SetBool("isWalking", isWalking);
+        animator.SetBool("isRunning", isRunning);
     }
 
     void OnDrawGizmosSelected()

@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private GameManager.GameState playState;
     [SerializeField] private GameManager.GameState gameOverState;
+    [SerializeField] private float hayHoldTime = 3f;
 
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed;
@@ -72,6 +73,8 @@ public class PlayerController : MonoBehaviour
 
     private float jumpPower;
 
+    private bool touchingHay;
+    private float elapsedHayHoldTime;
 
     void Start()
     {
@@ -95,6 +98,23 @@ public class PlayerController : MonoBehaviour
             SoundManager.Instance.CreateSoundBubble(radius);
             
             soundTimer = 0f;
+        }
+
+        // Player has to hold down E to collect hay
+        if (touchingHay)
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                elapsedHayHoldTime += Time.deltaTime;
+                if (elapsedHayHoldTime >= hayHoldTime)
+                    GameManager.Instance.LoadScene(1);
+            } else 
+            {
+                elapsedHayHoldTime -= Time.deltaTime;
+            }
+        } else 
+        {
+            elapsedHayHoldTime = 0f;
         }
     }
 
@@ -233,8 +253,15 @@ public class PlayerController : MonoBehaviour
 
         if (obj.CompareTag("Hay"))
         {
-            Destroy(obj.gameObject);
-            GameManager.Instance.ChangeState(GameManager.GameState.LevelComplete, 0);
+            touchingHay = true;
+        }
+    }
+
+    void OnTriggerExit(Collider obj)
+    {
+        if (obj.CompareTag("Hay"))
+        {
+            touchingHay = false;
         }
     }
 }
