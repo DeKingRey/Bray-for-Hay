@@ -271,7 +271,7 @@ PrefabInstance:
     - target: {fileID: 1451003239455646746, guid: 091e1540780e1074880de38b0bdf7087, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 7add2c6654e960541b3e5f00e99e2774, type: 2}
+      objectReference: {fileID: 9100000, guid: ecd5a8afed3f40c40b330049ffb6e4d1, type: 2}
     - target: {fileID: 1793442088390285641, guid: 091e1540780e1074880de38b0bdf7087, type: 3}
       propertyPath: m_Name
       value: HearingHorse

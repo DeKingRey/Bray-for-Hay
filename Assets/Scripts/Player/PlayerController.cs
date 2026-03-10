@@ -7,7 +7,6 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private GameManager.GameState playState;
     [SerializeField] private GameManager.GameState gameOverState;
-    [SerializeField] private float hayHoldTime = 3f;
 
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed;
@@ -51,6 +50,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float walkSoundRadius = 5f;
     [SerializeField] private float crouchSoundRadius = 0f;
 
+    [HideInInspector] public bool isHidden;
+
     private float soundTimer = 0f;
 
     private CharacterController controller;
@@ -72,9 +73,6 @@ public class PlayerController : MonoBehaviour
     private bool isFalling;
 
     private float jumpPower;
-
-    private bool touchingHay;
-    private float elapsedHayHoldTime;
 
     void Start()
     {
@@ -98,23 +96,6 @@ public class PlayerController : MonoBehaviour
             SoundManager.Instance.CreateSoundBubble(radius);
             
             soundTimer = 0f;
-        }
-
-        // Player has to hold down E to collect hay
-        if (touchingHay)
-        {
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                elapsedHayHoldTime += Time.deltaTime;
-                if (elapsedHayHoldTime >= hayHoldTime)
-                    GameManager.Instance.LoadScene(1);
-            } else 
-            {
-                elapsedHayHoldTime -= Time.deltaTime;
-            }
-        } else 
-        {
-            elapsedHayHoldTime = 0f;
         }
     }
 
@@ -250,18 +231,11 @@ public class PlayerController : MonoBehaviour
     void OnTriggerEnter(Collider obj)
     {
         if (obj.CompareTag("Weapon")) GameManager.Instance.ChangeState(gameOverState, 0);
-
-        if (obj.CompareTag("Hay"))
-        {
-            touchingHay = true;
-        }
+        if (obj.CompareTag("Bush")) isHidden = true;
     }
 
     void OnTriggerExit(Collider obj)
     {
-        if (obj.CompareTag("Hay"))
-        {
-            touchingHay = false;
-        }
+        if (obj.CompareTag("Bush")) isHidden = false;
     }
 }

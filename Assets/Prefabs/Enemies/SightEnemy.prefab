@@ -55,7 +55,7 @@ MonoBehaviour:
   indicatorAnim: {fileID: 6012300341588381315}
   hips: {fileID: 7848911019714942747}
   knockbackRecoveryThreshold: 0.1
-  maxKnockbackTime: 3
+  maxKnockbackTime: 10
   maxExpectedForce: 5
   forceThreshold: 20
   waitTime: 1e+11

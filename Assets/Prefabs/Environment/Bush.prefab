@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7063615785517751211}
   m_Layer: 0
   m_Name: Bush
-  m_TagString: Untagged
+  m_TagString: Bush
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -41,7 +41,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7587669876925317394}
-  m_Mesh: {fileID: -782728666351851818, guid: b008c50253c9e4b4287b0a39282004e5, type: 3}
+  m_Mesh: {fileID: 5958362384829529401, guid: f85dd97b70c45924495c8a5f89fc5ce0, type: 3}
 --- !u!23 &8236008385112137927
 MeshRenderer:
   m_ObjectHideFlags: 0

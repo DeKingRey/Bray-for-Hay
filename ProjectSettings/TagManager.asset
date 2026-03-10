@@ -13,6 +13,9 @@ TagManager:
   - Level Complete
   - Stamina Slider
   - Mic Slider
+  - Enemy Dialogue
+  - Context
+  - Bush
   layers:
   - Default
   - TransparentFX
@@ -23,7 +26,7 @@ TagManager:
   - Ground
   - Player
   - AudioEnemy
-  - 
+  - Border
   - 
   - 
   - 

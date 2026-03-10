@@ -23,6 +23,7 @@ public class SightEnemy : EnemyController
         bool inAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
 
         if (!inPlayerRange) state = EnemyState.Patrolling;
+        if (player.GetComponent<PlayerController>().isHidden) return;
 
         // Gets angle of direction to player to forward position
         Vector3 playerDir = (player.position - transform.position).normalized;
@@ -54,5 +55,7 @@ public class SightEnemy : EnemyController
         visionAngle *= alertMultiplier;
 
         yield return new WaitForSeconds(alertDuration);
+
+        visionAngle = defaultVisionAngle;
     }
 }
