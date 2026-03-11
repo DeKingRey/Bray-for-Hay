@@ -5,13 +5,25 @@ using UnityEngine.UI;
 
 public class CollectHay : MonoBehaviour
 {
+    [Header("Collection")]
     [SerializeField] private float hayHoldTime = 3f;
     [SerializeField] private Slider holdSlider;
     [SerializeField] private Animator sliderAnim;
+
+    [Space(10)]
+
+    [Header("Cutscenes")]
     [SerializeField] private bool playCutscene = false;
+    [SerializeField] private int cutsceneIndex;
     
     private bool playerTouching;
     private float elapsedHoldTime;
+    private PlayerCutscenes cutscenePlayer;
+
+    void Start()
+    {
+        cutscenePlayer = FindObjectOfType<PlayerCutscenes>();
+    }
 
     void Update()
     {
@@ -21,9 +33,11 @@ public class CollectHay : MonoBehaviour
             if (Input.GetKey(KeyCode.E))
             {
                 elapsedHoldTime += Time.deltaTime;
+                // Loads next scene once completed unless there is a cutscene to play
                 if (elapsedHoldTime >= hayHoldTime)
                 {
                     if (!playCutscene) GameManager.Instance.LoadScene(1);
+                    else cutscenePlayer.currentCutsceneIndex = cutsceneIndex;
                 }
             } else 
             {
