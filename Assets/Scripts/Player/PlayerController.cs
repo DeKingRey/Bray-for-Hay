@@ -232,6 +232,7 @@ public class PlayerController : MonoBehaviour
     {
         if (obj.CompareTag("Weapon")) GameManager.Instance.ChangeState(gameOverState, 0);
         if (obj.CompareTag("Bush")) isHidden = true;
+        if (obj.CompareTag("Fall Zone")) GameManager.Instance.ChangeState(gameOverState, 0);
     }
 
     void OnTriggerExit(Collider obj)

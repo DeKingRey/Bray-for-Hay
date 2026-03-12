@@ -10,13 +10,15 @@ public class SoundManager : MonoBehaviour
         public float radius;
         public float timeCreated;
     }
-
     private List<DebugSound> debugSounds = new List<DebugSound>();
-    [SerializeField] private float debugDuration = 0.5f;
-    
+    private float debugDuration = 0.5f;
+
     public static SoundManager Instance;
 
     [SerializeField] private LayerMask audioEnemyLayer;
+    
+    
+    
     private Transform player;
     
 

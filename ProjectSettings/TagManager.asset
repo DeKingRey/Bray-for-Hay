@@ -16,6 +16,7 @@ TagManager:
   - Enemy Dialogue
   - Context
   - Bush
+  - Fall Zone
   layers:
   - Default
   - TransparentFX
