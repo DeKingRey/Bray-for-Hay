@@ -16,12 +16,10 @@ public class SoundManager : MonoBehaviour
     public static SoundManager Instance;
 
     [SerializeField] private LayerMask audioEnemyLayer;
-    
-    
+    [SerializeField] private GameObject audioPrefab;
     
     private Transform player;
     
-
     void Awake()
     {
         if (Instance == null)
@@ -38,6 +36,13 @@ public class SoundManager : MonoBehaviour
     void Update()
     {
         if (!player) player = FindObjectOfType<PlayerController>().transform;
+    }
+
+    public void PlayAudioClip(AudioClip clip, float volume, Transform parent)
+    {
+        AudioSource source = Instantiate(audioPrefab, parent).GetComponent<AudioSource>();
+        source.clip = clip;
+        source.volume = volume;
     }
 
     public void CreateSoundBubble(float radius)

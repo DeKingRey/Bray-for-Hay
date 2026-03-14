@@ -58,6 +58,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] protected float attackRange;
     [SerializeField] private float attackCooldown;
     [SerializeField] protected GameObject projectile;
+    [SerializeField] private Transform shotPoint;
 
     [Space(10)]
 
@@ -125,7 +126,6 @@ public class EnemyController : MonoBehaviour
         if (agent.remainingDistance <= 0.1f)
         {
             agent.isStopped = true;
-            animator.enabled = false;
             elapsedTime += Time.deltaTime;
             
             UpdateAnimator(true, false, false); // Sets anim to idle
@@ -204,14 +204,14 @@ public class EnemyController : MonoBehaviour
         if (distance <= minShootDistance) duration = minDelayDuration;
 
         yield return new WaitForSeconds(duration);
-        Attack();
+        animator.SetTrigger("Attack");
     }
 
-    void Attack()
+    public void Attack()
     {
         // Sends out a projectile towards the player
-        Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-        rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
+        Rigidbody rb = Instantiate(projectile, shotPoint.position, Quaternion.identity).GetComponent<Rigidbody>();
+        rb.velocity = transform.forward * 10f;
 
         isAlert = true;
 

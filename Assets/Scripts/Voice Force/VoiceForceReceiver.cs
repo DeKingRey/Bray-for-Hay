@@ -62,10 +62,6 @@ public class VoiceForceReceiver : MonoBehaviour
             else if (enemy.isKnocked) return;
             else return;
         }
-
-        // Resets velocity
-        //targetRb.velocity = Vector3.zero;
-        //targetRb.angularVelocity = Vector3.zero;
         
         // Velocity change ignores mass
         targetRb.AddForce(finalForce, ForceMode.Impulse);

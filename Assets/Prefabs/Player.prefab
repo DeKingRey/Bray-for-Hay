@@ -224,22 +224,6 @@ MonoBehaviour:
   cutscenes:
   - targetY: 100
     speed: 10
-    active: 0
-    PlayCutscene:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 8782949175978212997}
-          m_TargetAssemblyTypeName: PlayerCutscenes, Assembly-CSharp
-          m_MethodName: LevelOneCutscene
-          m_Mode: 1
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
   currentCutsceneIndex: -1
 --- !u!54 &2740042267957835550
 Rigidbody:
@@ -438,7 +422,7 @@ GameObject:
   m_Component:
   - component: {fileID: 17806245704349243}
   - component: {fileID: 6261518660409146133}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ForceArea
   m_TagString: Force Area
   m_Icon: {fileID: 0}
