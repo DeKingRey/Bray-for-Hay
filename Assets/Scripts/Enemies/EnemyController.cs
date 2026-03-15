@@ -211,7 +211,8 @@ public class EnemyController : MonoBehaviour
     {
         // Sends out a projectile towards the player
         Rigidbody rb = Instantiate(projectile, shotPoint.position, Quaternion.identity).GetComponent<Rigidbody>();
-        rb.velocity = transform.forward * 10f;
+        Vector3 playerDir = (player.position - transform.position).normalized;
+        rb.velocity = playerDir * 10f;
 
         isAlert = true;
 

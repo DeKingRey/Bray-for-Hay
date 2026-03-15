@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float walkSpeed;
     [SerializeField] private float defaultSprintSpeed;
     [SerializeField] private float crouchSpeed;
+    [SerializeField] private float slideStrength = 8f;
 
     [Tooltip("How much smaller the player gets when crouching")]
     [SerializeField] private float crouchScaleY;
@@ -204,6 +205,16 @@ public class PlayerController : MonoBehaviour
 
         #endregion
 
+        #region Handles Slopes
+
+        Vector3 slideDir;
+        if (controller.isGrounded && IsOnSteepSlope(out slideDir))
+        {
+            moveDirection += slideDir * slideStrength;
+        }
+
+        #endregion
+
         controller.Move(moveDirection * Time.deltaTime);
     }
 
@@ -228,11 +239,29 @@ public class PlayerController : MonoBehaviour
         canRegainStamina = true;
     }
 
+    /// Checks if the player is on a steep slope
+    /// If so the player will slide down it (depending on direction)
+    bool IsOnSteepSlope(out Vector3 slideDirection)
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, 2f))
+        {
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+            
+            if (angle > controller.slopeLimit)
+            {
+                slideDirection = Vector3.ProjectOnPlane(Vector3.down, hit.normal);
+                return true;
+            }
+        }
+
+        slideDirection = Vector3.zero;
+        return false;
+    }
+
     void OnTriggerEnter(Collider obj)
     {
         if (obj.transform.root == transform.root) return;
-
-        Debug.Log(obj.name + " from " + obj.transform.root.name);
 
         if (obj.CompareTag("Weapon") || obj.CompareTag("Fall Zone"))
             GameManager.Instance.ChangeState(gameOverState, 0);
