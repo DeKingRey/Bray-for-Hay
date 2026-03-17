@@ -10,12 +10,14 @@ public class AudioEnemy : EnemyController
     [SerializeField] private Transform hearingRadius;
 
     private VolumeDetector detector;
+    private Vector3 defaultHearingRadius;
 
     protected override void Start()
     {
         base.Start();
 
         detector = FindObjectOfType<VolumeDetector>();
+        defaultHearingRadius = hearingRadius.localScale;
     }
 
     protected override void Update()
@@ -35,7 +37,7 @@ public class AudioEnemy : EnemyController
     /// If the player is beyond the hearing distance, the enemy will just investigate
     public void Investigate()
     {
-        if (inProximity) return;
+        if (inProximity || state == EnemyState.Attacking) return;
         
         Vector3 playerDir = (player.position - transform.position).normalized;
         float playerDistance = Vector3.Distance(transform.position, player.position);
@@ -43,25 +45,24 @@ public class AudioEnemy : EnemyController
         // Sphere cast radius (larger if dist smaller)
         float radius = maxHearingDistance / Mathf.Clamp(playerDistance, 0.1f, maxHearingDistance);
 
-        state = EnemyState.Investigating;
+        ChangeEnemyState(EnemyState.Investigating);
 
         RaycastHit hit;
         if (Physics.SphereCast(transform.position, radius, playerDir, out hit, maxHearingDistance, playerLayer))
         {
             // Attacks if player isn't too far
-            if (playerDistance < maxHearingDistance) state = EnemyState.Attacking;
-            else state = EnemyState.Investigating;
+            if (playerDistance < maxHearingDistance) ChangeEnemyState(EnemyState.Attacking);
+            else ChangeEnemyState(EnemyState.Investigating);
         }
     }
 
     /// Temporarily increases hearing radius after investigating player
     private IEnumerator OnAlert()
     {
-        Transform defaultHearingRadius = hearingRadius;
-        hearingRadius.localScale *= alertMultiplier;
+        hearingRadius.localScale = alertMultiplier * defaultHearingRadius;
 
         yield return new WaitForSeconds(alertDuration);
 
-        hearingRadius = defaultHearingRadius;
+        hearingRadius.localScale = defaultHearingRadius;
     }
 }

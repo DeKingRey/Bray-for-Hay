@@ -51,11 +51,22 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float walkSoundRadius = 5f;
     [SerializeField] private float crouchSoundRadius = 0f;
 
+    [Space(10)]
+
+    [Header("Sound Effects")]
+    [SerializeField] private AudioSource walkSourceSfx;
+    [SerializeField] private AudioClip[] walkSfxs;
+    [SerializeField] private AudioClip[] sprintSfxs;
+    [SerializeField] private AudioClip jumpSfx;
+    [SerializeField] private AudioClip landSfx;
+
     [HideInInspector] public bool isHidden;
 
+    private float walkSfxTimer = 0f;
     private float soundTimer = 0f;
 
     private CharacterController controller;
+    private Animator anim;
 
     private Vector3 moveDirection;
 
@@ -74,11 +85,13 @@ public class PlayerController : MonoBehaviour
     private bool isFalling;
 
     private float jumpPower;
+    private bool canPlayLandSfx;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
         staminaSlider = GameObject.FindWithTag("Stamina Slider").GetComponent<Slider>();
+        anim = GetComponentInChildren<Animator>();
 
         currentStamina = maxStamina;
     }
@@ -90,7 +103,7 @@ public class PlayerController : MonoBehaviour
         HandleMovement();
 
         soundTimer += Time.deltaTime;
-        if (soundTimer >= createSoundInterval)
+        if (soundTimer >= createSoundInterval && !isCrouching)
         {
             // Radius dependent on whether sprinting or walking
             float radius = isMoving ? (isSprinting ? sprintSoundRadius : isCrouching ? crouchSoundRadius : walkSoundRadius) : 0;
@@ -129,6 +142,34 @@ public class PlayerController : MonoBehaviour
 
         #endregion
 
+        #region Walk SFX
+        
+        if (isMoving)
+        {
+            walkSfxTimer -= Time.deltaTime;
+            if (walkSfxTimer <= 0)
+            {
+                // Changes audio depending on whether the player is sprinting, crouching, or walking
+                if (isSprinting) 
+                    walkSourceSfx.clip = sprintSfxs[Random.Range(0, sprintSfxs.Length)];
+                else 
+                    walkSourceSfx.clip = walkSfxs[Random.Range(0, walkSfxs.Length)];
+                if (isCrouching)
+                    walkSourceSfx.volume = 0.1f;
+                else 
+                    walkSourceSfx.volume = 0.3f;
+    
+                walkSfxTimer = walkSourceSfx.clip.length;
+                walkSourceSfx.Play();
+            }
+        }
+        else
+        {
+            walkSfxTimer = 0f;
+            walkSourceSfx.Stop();
+        }
+        #endregion
+
         #region Handles Crouching
 
         Vector3 scale = transform.localScale;
@@ -138,9 +179,10 @@ public class PlayerController : MonoBehaviour
         #endregion
 
         #region Handles Jumping
-        if (Input.GetButton("Jump") && canMove && controller.isGrounded && currentStamina >= 0.25f)
+        if (Input.GetButton("Jump") && canMove && controller.isGrounded && currentStamina >= 0.5f)
         {
             isJumping = true;
+            SoundManager.Instance.PlayAudio(jumpSfx, 1f, transform);
         }
         else
         {
@@ -159,6 +201,7 @@ public class PlayerController : MonoBehaviour
             {
                 isFalling = true;
                 isJumping = false;
+                canPlayLandSfx = true;
                 jumpPower = 0;
             }
         }
@@ -168,6 +211,12 @@ public class PlayerController : MonoBehaviour
         {
             moveDirection.y -= gravity * (isFalling ? fallMultiplier : 1f) * Time.deltaTime;
         } else isFalling = false;
+
+        if (controller.isGrounded && canPlayLandSfx)
+        {
+            canPlayLandSfx = false;
+            SoundManager.Instance.PlayAudio(landSfx, 0.6f, transform);
+        }
 
         #endregion
 
@@ -179,9 +228,17 @@ public class PlayerController : MonoBehaviour
         if (isSprinting && currentStamina > 0f)
         {
             currentStamina -= staminaDrainRate * Time.deltaTime;
+
+            if (isMoving) 
+                UpdateAnimator(false, false, true); // Sets anim to running
+            else UpdateAnimator(true, false, false); // Sets anim to idle
         } 
         else
         {
+            if (isMoving) 
+                UpdateAnimator(false, true, false); // Sets anim to walking
+            else UpdateAnimator(true, false, false); // Sets anim to idle
+
             // Regains stamina after a short delay, stops if stamina has reached max
             if (!staminaDelayActive && currentStamina < maxStamina)
                 StartCoroutine(RegainStaminaDelay());
@@ -257,6 +314,13 @@ public class PlayerController : MonoBehaviour
 
         slideDirection = Vector3.zero;
         return false;
+    }
+
+    void UpdateAnimator(bool isIdle, bool isWalking, bool isRunning)
+    {
+        anim.SetBool("isIdle", isIdle);
+        anim.SetBool("isWalking", isWalking);
+        anim.SetBool("isRunning", isRunning);
     }
 
     void OnTriggerEnter(Collider obj)

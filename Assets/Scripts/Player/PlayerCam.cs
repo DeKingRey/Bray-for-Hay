@@ -15,29 +15,25 @@ public class PlayerCam : MonoBehaviour
     private float xRotation;
     private float yRotation;
 
-    private bool camStart = true;
-
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        xRotation = 0f;
     }
 
     void Update()
     {
+        if (Time.frameCount == 1) return;
+        if (GameManager.Instance.State != GameManager.GameState.Playing) return;
+
         // Get rotations based on mouse input
         float mouseX = Input.GetAxisRaw("Mouse X") * sensX * Time.deltaTime;
         float mouseY = Input.GetAxisRaw("Mouse Y") * sensY * Time.deltaTime;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, minRotationX, maxRotationX);
-
-        // Sets x rotation to 0 to begin with (to avoid errors)
-        if (camStart)
-        {
-            xRotation = 0f;
-            camStart = false;
-        }
 
         // Rotates camera/player
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);

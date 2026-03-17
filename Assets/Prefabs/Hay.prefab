@@ -441,6 +441,7 @@ MonoBehaviour:
   hayHoldTime: 3
   holdSlider: {fileID: 5731746402194985933}
   sliderAnim: {fileID: 2427662794010691834}
+  collectSfx: {fileID: 8300000, guid: 1f863053a87b23f4e9ffdc656e6ccf40, type: 3}
   playCutscene: 0
   cutsceneIndex: 0
 --- !u!65 &6932807771969310059

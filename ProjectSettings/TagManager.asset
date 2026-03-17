@@ -17,6 +17,7 @@ TagManager:
   - Context
   - Bush
   - Fall Zone
+  - Door
   layers:
   - Default
   - TransparentFX

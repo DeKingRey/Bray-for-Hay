@@ -22,7 +22,7 @@ public class SightEnemy : EnemyController
         bool inPlayerRange = Physics.CheckSphere(transform.position, detectionRadius, playerLayer);
         bool inAttackRange = Physics.CheckSphere(transform.position, attackRange, playerLayer);
 
-        if (!inPlayerRange) state = EnemyState.Patrolling;
+        if (!inPlayerRange) ChangeEnemyState(EnemyState.Patrolling);
         if (player.GetComponent<PlayerController>().isHidden) return;
 
         // Gets angle of direction to player to forward position
@@ -32,7 +32,7 @@ public class SightEnemy : EnemyController
         // Checks if player is in vision cone
         if (angle > visionAngle * 0.5f)
         {
-            state = EnemyState.Patrolling;
+            ChangeEnemyState(EnemyState.Patrolling);
             return;
         }
     
@@ -44,8 +44,8 @@ public class SightEnemy : EnemyController
         float playerDistance = Vector3.Distance(transform.position, player.position);
 
         // Changes enemy state
-        if (inAttackRange) state = EnemyState.Attacking;
-        else state = EnemyState.Investigating;
+        if (inAttackRange) ChangeEnemyState(EnemyState.Attacking);
+        else ChangeEnemyState(EnemyState.Investigating);
     }
 
     private IEnumerator OnAlert()

@@ -38,11 +38,10 @@ public class SoundManager : MonoBehaviour
         if (!player) player = FindObjectOfType<PlayerController>().transform;
     }
 
-    public void PlayAudioClip(AudioClip clip, float volume, Transform parent)
+    public void PlayAudio(AudioClip clip, float volume, Transform parent)
     {
         AudioSource source = Instantiate(audioPrefab, parent).GetComponent<AudioSource>();
-        source.clip = clip;
-        source.volume = volume;
+        source.PlayOneShot(clip, volume);
     }
 
     public void CreateSoundBubble(float radius)
@@ -58,6 +57,7 @@ public class SoundManager : MonoBehaviour
         Collider[] targets = Physics.OverlapSphere(player.position, radius, audioEnemyLayer);
         foreach (Collider target in targets)
         {
+            Debug.Log(target.gameObject.name);
             AudioEnemy enemy = target.gameObject.GetComponentInParent<AudioEnemy>();
             enemy.Investigate();
         }

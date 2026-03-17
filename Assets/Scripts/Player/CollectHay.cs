@@ -9,6 +9,7 @@ public class CollectHay : MonoBehaviour
     [SerializeField] private float hayHoldTime = 3f;
     [SerializeField] private Slider holdSlider;
     [SerializeField] private Animator sliderAnim;
+    [SerializeField] private AudioClip collectSfx;
 
     [Space(10)]
 
@@ -38,6 +39,7 @@ public class CollectHay : MonoBehaviour
                 {
                     if (!playCutscene) GameManager.Instance.LoadScene(1);
                     else cutscenePlayer.currentCutsceneIndex = cutsceneIndex;
+                    SoundManager.Instance.PlayAudio(collectSfx, 0.6f, transform);
                 }
             } else 
             {

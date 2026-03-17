@@ -54,7 +54,7 @@ public class VolumeDetector : MonoBehaviour
             loudness = VolumeFromMicrophone();
             float currentNoiseRadius = Mathf.Clamp(loudness * radiusMultiplier, 0, maxNoiseRadius);
 
-            SoundManager.Instance.CreateSoundBubble(currentNoiseRadius);
+            if (currentNoiseRadius > 0f) SoundManager.Instance.CreateSoundBubble(currentNoiseRadius);
             soundTimer = 0f;
         }
     }

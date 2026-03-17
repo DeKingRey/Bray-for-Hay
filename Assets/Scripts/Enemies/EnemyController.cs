@@ -19,9 +19,6 @@ public class EnemyController : MonoBehaviour
     [Header("Force Settings")]
     public Rigidbody hips;
 
-    [Tooltip("Maximum velocity needed to recover from knockback")]
-    [SerializeField] private float knockbackRecoveryThreshold = 0.1f;
-
     [Tooltip("Max time enemy will be knocked out")]
     [SerializeField] private float maxKnockbackTime = 3f;
 
@@ -69,10 +66,19 @@ public class EnemyController : MonoBehaviour
 
     [Space(10)]
 
+    [Header("Sound Effects")]
+    [SerializeField] private AudioClip alertSfx;
+    [SerializeField] private AudioClip suspectSfx;
+    [SerializeField] private AudioClip horseshoeSfx;
+    [SerializeField] private AudioClip ragdollSfx;
+    [SerializeField] private AudioClip[] trotSfxs;
+    [SerializeField] private AudioClip[] gallopSfxs;
+    [SerializeField] private AudioSource walkSourceSfx;
+
     protected NavMeshAgent agent;
     private EnemyPath path;
     private Rigidbody rb;
-    private Collider collider;
+    private Collider enemyCollider;
 
     private float elapsedTime = 0f;
     [HideInInspector] public bool isKnocked = false;
@@ -82,13 +88,14 @@ public class EnemyController : MonoBehaviour
     
     protected Transform player;
     private Animator animator;
+    private float walkSoundTimer = 0f;
 
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         path = GetComponent<EnemyPath>();
         rb = GetComponent<Rigidbody>();
-        collider = GetComponent<Collider>();
+        enemyCollider = GetComponent<Collider>();
         animator = GetComponentInChildren<Animator>();
 
         agent.destination = path.GetCurrentWaypoint();
@@ -106,7 +113,7 @@ public class EnemyController : MonoBehaviour
         // Proximity radius will be quite a small sphere, checking if the player is extremely close to the player
         // This simulates the enemy 'feeling' the player
         inProximity = Physics.CheckSphere(transform.position, proximityRadius, playerLayer);
-        if (inProximity) state = EnemyState.Attacking;
+        if (inProximity && state != EnemyState.Attacking) ChangeEnemyState(EnemyState.Attacking);
 
         if (state == EnemyState.Patrolling) Patrolling();
         else
@@ -114,6 +121,23 @@ public class EnemyController : MonoBehaviour
             // Only non-blind enemies will change states (blind enemies have their own methods)
             if (state == EnemyState.Attacking) Attacking();
             else Chasing();
+        }
+    }
+
+    public void ChangeEnemyState(EnemyState newState)
+    {
+        if (newState == state) return;
+        state = newState;
+
+        switch (state)
+        {
+            case EnemyState.Patrolling:
+                break;
+            case EnemyState.Investigating:  
+                SoundManager.Instance.PlayAudio(suspectSfx, 0.5f, transform);
+                break;
+            case EnemyState.Attacking:
+                break;
         }
     }
 
@@ -129,6 +153,7 @@ public class EnemyController : MonoBehaviour
             elapsedTime += Time.deltaTime;
             
             UpdateAnimator(true, false, false); // Sets anim to idle
+            walkSoundTimer = 0f;
 
             if (elapsedTime >= waitTime)
             {
@@ -137,7 +162,11 @@ public class EnemyController : MonoBehaviour
                 animator.enabled = true;
                 agent.destination = path.GetNextWaypoint();
             }
-        } else agent.isStopped = false;
+        }
+        else {
+            agent.isStopped = false;
+            PlayWalkAudio(trotSfxs);
+        }
     }
 
     void Chasing()
@@ -149,11 +178,14 @@ public class EnemyController : MonoBehaviour
         {
             agent.isStopped = false;
             agent.SetDestination(player.position);
+
+            PlayWalkAudio(gallopSfxs);
             UpdateAnimator(false, false, true); // Sets anim to running
         }
         else
         {
             agent.isStopped = true;
+            walkSoundTimer = 0f;
             UpdateAnimator(true, false, false); // Sets anim to idle
         }
     }
@@ -173,6 +205,8 @@ public class EnemyController : MonoBehaviour
         canAttack = false;
         UpdateIndicators(false, true, false); // Sets indicator to suspicious
         UpdateAnimator(true, false, false); // Sets anim to idle
+
+        SoundManager.Instance.PlayAudio(suspectSfx, 0.5f, transform);
 
         // Gets direction towards player
         Vector3 direction = (player.position - transform.position).normalized;
@@ -199,6 +233,7 @@ public class EnemyController : MonoBehaviour
     private IEnumerator ShootDelay(float distance)
     {
         UpdateIndicators(false, false, true); // Sets indicator to alert
+        SoundManager.Instance.PlayAudio(alertSfx, 1f, transform);
 
         float duration = Random.Range(minDelayDuration, maxDelayDuration);
         if (distance <= minShootDistance) duration = minDelayDuration;
@@ -213,10 +248,11 @@ public class EnemyController : MonoBehaviour
         Rigidbody rb = Instantiate(projectile, shotPoint.position, Quaternion.identity).GetComponent<Rigidbody>();
         Vector3 playerDir = (player.position - transform.position).normalized;
         rb.velocity = playerDir * 10f;
+        SoundManager.Instance.PlayAudio(horseshoeSfx, 0.75f, rb.gameObject.transform);
 
         isAlert = true;
 
-        state = EnemyState.Patrolling;
+        ChangeEnemyState(EnemyState.Patrolling);
 
         // Resets attack
         Invoke(nameof(ResetAttack), attackCooldown);
@@ -260,9 +296,11 @@ public class EnemyController : MonoBehaviour
     {
         // Ensures root doesn't fight with ragdoll
         agent.enabled = false;
-        collider.isTrigger = true;
+        enemyCollider.isTrigger = true;
         rb.isKinematic = true;
         if (animator) animator.enabled = false;
+
+        SoundManager.Instance.PlayAudio(ragdollSfx, 1f, transform);
 
         // Enables all rbs in ragdoll
         foreach (Rigidbody rb in GetComponentsInChildren<Rigidbody>())
@@ -309,7 +347,7 @@ public class EnemyController : MonoBehaviour
         transform.position = ragdollPosition;
 
         rb.isKinematic = true;
-        collider.isTrigger = false;
+        enemyCollider.isTrigger = false;
 
         transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
 
@@ -337,6 +375,26 @@ public class EnemyController : MonoBehaviour
         animator.SetBool("isIdle", isIdle);
         animator.SetBool("isWalking", isWalking);
         animator.SetBool("isRunning", isRunning);
+    }
+
+    void PlayWalkAudio(AudioClip[] walkSfxs)
+    {
+        walkSoundTimer -= Time.deltaTime;
+        if (walkSoundTimer <= 0)
+        {
+            walkSourceSfx.clip = walkSfxs[Random.Range(0, walkSfxs.Length)];
+            walkSoundTimer = walkSourceSfx.clip.length;
+            walkSourceSfx.Play();
+        }
+    }
+
+    void OnTriggerEnter(Collider obj)
+    {
+        if (obj.CompareTag("Fall Zone"))
+        {
+            maxKnockbackTime = Mathf.Infinity;
+            ApplyKnockback(Mathf.Infinity);
+        }
     }
 
     void OnDrawGizmosSelected()
