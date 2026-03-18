@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class VolumeDetector : MonoBehaviour
 {
     [Header("Microphone Force Settings")]
-    [Tooltip("'Strength' of microphone")]
-    public float micMultiplier = 5f;
+    [Tooltip("'Strength' of microphone (sensitivity)")]
+    public float micMultiplier = 200f;
 
     [Tooltip("Adds lift to the force - so it goes up")]
     public float upwardMultiplier = 0.35f;
@@ -18,7 +18,7 @@ public class VolumeDetector : MonoBehaviour
 
 
     [Header("Microphone Detection Settings")]
-    public float minVolume = 0.1f;
+    public float minVolume = 0.2f;
     public float maxVolume = 5f;
 
     [Tooltip("Size of the audio sample chunk used for volume detection. Lower - more reactive")]

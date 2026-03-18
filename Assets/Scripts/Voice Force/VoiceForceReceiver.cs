@@ -57,7 +57,6 @@ public class VoiceForceReceiver : MonoBehaviour
             if (!enemy.isKnocked && baseForce.magnitude >= enemy.forceThreshold)
             {
                 enemy.ApplyKnockback(finalForce.magnitude);
-                Debug.Log(baseForce.magnitude);
             }
             else if (enemy.isKnocked) return;
             else return;

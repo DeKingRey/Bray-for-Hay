@@ -6,7 +6,6 @@ using System;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private float timeScale;
     public static GameManager Instance;
     public GameState State;
     public static event Action<GameState> OnGameStateChanged;
@@ -41,8 +40,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        Time.timeScale = timeScale;
-
         if (!gameOverAnim)
         {
             GameObject gameOverUI = GameObject.FindWithTag("Game Over");
