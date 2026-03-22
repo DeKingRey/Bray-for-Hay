@@ -19,20 +19,18 @@ public class OptionsMenu : MonoBehaviour
     [SerializeField] private Slider sfxSlider;
 
     private PlayerCam camSensitivity;
-    private VolumeDetector micSensitivity;
+    private VolumeDetector voiceDetector;
 
     void Start()
     {
-        #region Getting Saved Values
-
         camSensitivity = FindObjectOfType<PlayerCam>();
-        micSensitivity = FindObjectOfType<VolumeDetector>();
+        voiceDetector = FindObjectOfType<VolumeDetector>();
+        PopulateMicDropdown();
+
+        #region Getting Saved Values
 
         float savedCamSensitivity = PlayerPrefs.GetFloat("CamSensitivity", 0.5f);
         float savedMicSensitivity = PlayerPrefs.GetFloat("MicSensitivity", 200f);
-
-        /*int savedQuality = PlayerPrefs.GetInt("Quality", QualitySettings.GetQualityLevel());
-        QualitySettings.SetQualityLevel(savedQuality, true);*/
 
         float savedMasterVolume = PlayerPrefs.GetFloat("MasterVolume", 1f);
         float savedMusicVolume = PlayerPrefs.GetFloat("MusicVolume", 1f);
@@ -48,14 +46,11 @@ public class OptionsMenu : MonoBehaviour
         }
         camSensitivitySlider.value = savedCamSensitivity;
 
-        if (micSensitivity != null)
+        if (voiceDetector != null)
         {
-            micSensitivity.micMultiplier = savedMicSensitivity;
+            voiceDetector.micMultiplier = savedMicSensitivity;
         }
         micSensitivitySlider.value = savedMicSensitivity;
-
-        /*qualityDropdown.value = savedQuality;
-        qualityDropdown.RefreshShownValue();*/
 
         SetMasterVolume(savedMasterVolume);
         masterSlider.value = savedMasterVolume;
@@ -72,13 +67,46 @@ public class OptionsMenu : MonoBehaviour
 
         camSensitivitySlider.onValueChanged.AddListener(SetCamSensitivity);
         micSensitivitySlider.onValueChanged.AddListener(SetMicSensitivity);
-        //qualityDropdown.onValueChanged.AddListener(SetQuality);
+        micInputDropdown.onValueChanged.AddListener(SetMicInput);
 
         masterSlider.onValueChanged.AddListener(SetMasterVolume);
         musicSlider.onValueChanged.AddListener(SetMusicVolume);
         sfxSlider.onValueChanged.AddListener(SetSoundFXVolume);
 
         #endregion
+    }
+
+    void PopulateMicDropdown()
+    {
+        micInputDropdown.ClearOptions();
+
+        if (Microphone.devices.Length == 0)
+        {
+            micInputDropdown.AddOptions(new List<string> {"No Microphone Found"});
+            micInputDropdown.interactable = false;
+            return;
+        }
+
+        List<string> mics = new List<string>();
+
+        // Adds dropdown options
+        foreach (string device in Microphone.devices)
+        {
+            mics.Add(device);
+        }
+
+        micInputDropdown.AddOptions(mics);
+
+        // Loads saved mic
+        string savedMic = PlayerPrefs.GetString("MicInput", Microphone.devices.Length > 0 ? Microphone.devices[0] : "");
+
+        int index = mics.IndexOf(savedMic);
+        if (index < 0 ) index = 0;
+
+        micInputDropdown.value = index;
+        micInputDropdown.RefreshShownValue();
+
+        SetMicInput(index);
     }
 
     public void SetCamSensitivity(float value)
@@ -90,17 +118,19 @@ public class OptionsMenu : MonoBehaviour
 
     public void SetMicSensitivity(float value)
     {
-        micSensitivity.micMultiplier = value;
+        voiceDetector.micMultiplier = value;
         PlayerPrefs.SetFloat("MicSensitivity", value);
         PlayerPrefs.Save();
     }
 
-    /*public void SetQuality(int index)
+    public void SetMicInput(int index)
     {
-        QualitySettings.SetQualityLevel(index, true);
-        PlayerPrefs.SetInt("Quality", index);
+        string selectedMic = Microphone.devices[index];
+
+        voiceDetector.selectedMic = selectedMic;
+        PlayerPrefs.SetString("MicInput", selectedMic);
         PlayerPrefs.Save();
-    }*/
+    }
 
     public void SetMasterVolume(float value)
     {

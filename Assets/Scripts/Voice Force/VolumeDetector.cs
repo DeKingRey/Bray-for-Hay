@@ -36,9 +36,15 @@ public class VolumeDetector : MonoBehaviour
     private float loudness;
 
     private AudioClip microphoneClip;
+    [HideInInspector] public string selectedMic;
     
     void Start()
     {
+        if (Microphone.devices.Length < 0)
+        {
+            Debug.LogWarning("No microphone found!");
+        }
+        if (string.IsNullOrEmpty(selectedMic)) selectedMic = Microphone.devices[0];
         MicrophoneToAudioClip();
     }
 
@@ -61,16 +67,13 @@ public class VolumeDetector : MonoBehaviour
 
     void MicrophoneToAudioClip()
     {
-        // Gets the first microphone on device
-        string microphoneName = Microphone.devices[0];
-
         // Records mic audio constantly
-        microphoneClip = Microphone.Start(microphoneName, true, 20, AudioSettings.outputSampleRate);
+        microphoneClip = Microphone.Start(selectedMic, true, 20, AudioSettings.outputSampleRate);
     }
 
     public float VolumeFromMicrophone()
     {
-        return Mathf.Clamp(VolumeFromClip(Microphone.GetPosition(Microphone.devices[0]), microphoneClip), 0, maxVolume);
+        return Mathf.Clamp(VolumeFromClip(Microphone.GetPosition(selectedMic), microphoneClip), 0, maxVolume);
     }
 
     float VolumeFromClip(int clipPosition, AudioClip clip)

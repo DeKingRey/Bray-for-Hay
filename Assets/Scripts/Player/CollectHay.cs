@@ -20,6 +20,7 @@ public class CollectHay : MonoBehaviour
     private bool playerTouching;
     private float elapsedHoldTime;
     private PlayerCutscenes cutscenePlayer;
+    private bool collectedHay = false;
 
     void Start()
     {
@@ -35,11 +36,14 @@ public class CollectHay : MonoBehaviour
             {
                 elapsedHoldTime += Time.deltaTime;
                 // Loads next scene once completed unless there is a cutscene to play
-                if (elapsedHoldTime >= hayHoldTime)
+                if (elapsedHoldTime >= hayHoldTime && !collectedHay)
                 {
-                    if (!playCutscene) GameManager.Instance.LoadScene(1);
+                    if (!playCutscene)
+                        GameManager.Instance.ChangeState(GameManager.GameState.LevelComplete, 0);
                     else cutscenePlayer.currentCutsceneIndex = cutsceneIndex;
                     SoundManager.Instance.PlayAudio(collectSfx, 0.6f, transform);
+
+                    collectedHay = true;
                 }
             } else 
             {

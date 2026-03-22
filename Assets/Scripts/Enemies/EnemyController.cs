@@ -270,7 +270,7 @@ public class EnemyController : MonoBehaviour
         isKnocked = true;
         
         EnableRagdoll();
-        UpdateIndicators(true, false, false); // Sets indicator to idle
+        UpdateIndicators(true, false, false); // Sets indicator anim to idle
 
         // Scales knockout duration with forceamount
         float normalizedForce = Mathf.Clamp01(forceAmount / maxExpectedForce);
@@ -299,6 +299,7 @@ public class EnemyController : MonoBehaviour
         enemyCollider.isTrigger = true;
         rb.isKinematic = true;
         if (animator) animator.enabled = false;
+        UpdateIndicators(true, false, false); // Sets indicator to idle
 
         SoundManager.Instance.PlayAudio(ragdollSfx, 1f, transform);
 
