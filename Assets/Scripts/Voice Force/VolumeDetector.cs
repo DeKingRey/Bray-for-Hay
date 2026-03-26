@@ -33,7 +33,7 @@ public class VolumeDetector : MonoBehaviour
     [SerializeField] private float maxNoiseRadius = 10f;
     [SerializeField] private float radiusMultiplier = 5f;
 
-    [Header("Screen Shake")]
+    [Header("Juice")]
     [SerializeField] private ShakeData voiceShake;
     [SerializeField] private float volumeShakeThreshold = 1f;
     [SerializeField] private float shakeMultiplier = 5f;

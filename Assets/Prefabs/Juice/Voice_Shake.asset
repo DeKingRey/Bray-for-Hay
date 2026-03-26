@@ -19,8 +19,8 @@ MonoBehaviour:
   _iterationPercent: 1
   _unlimitedDuration: 0
   _totalDuration: 0.5
-  _fadeInDuration: 0.05
-  _fadeOutDuration: 0.1
+  _fadeInDuration: 0
+  _fadeOutDuration: 0.05
   _magnitude: 2
   _magnitudeNoise: 0
   _magnitudeCurve:
@@ -91,7 +91,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _positionalInfluence: {x: 0.15, y: 0.25, z: 0.15}
+  _positionalInfluence: {x: 0.15, y: 0.35, z: 0.15}
   _positionalInverts: 0
   _rotationalInfluence: {x: 0, y: 0, z: 0.5}
   _rotationalInverts: 0

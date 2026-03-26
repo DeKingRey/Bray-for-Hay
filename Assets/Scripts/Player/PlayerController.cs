@@ -12,8 +12,12 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed;
     [SerializeField] private float defaultSprintSpeed;
-    [SerializeField] private float crouchSpeed;
     [SerializeField] private float slideStrength = 8f;
+
+    [Space(10)]
+
+    [Header("Crouch Settings")]
+    [SerializeField] private float crouchSpeed;
 
     [Tooltip("How much smaller the player gets when crouching")]
     [SerializeField] private float crouchScaleY;
@@ -62,10 +66,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip landSfx;
 
     [Tooltip("How long the player must be falling to play the land SFX")]
-    [SerializeField] private float fallThresholdTime = 0.5f; 
+    [SerializeField] private float fallThresholdTime = 0.5f;
+
+    [Header("Juice")] 
 
     [Space(10)]
     [SerializeField] private ShakeData landShake;
+
+    [Space(5)]
+
+    [Tooltip("Time it takes for speed lines to appear while falling")]
+    [SerializeField] private float speedLinesTime;
+    [SerializeField] private ParticleSystem speedParticles;
 
     [HideInInspector] public bool isHidden;
 
@@ -102,6 +114,8 @@ public class PlayerController : MonoBehaviour
         anim = GetComponentInChildren<Animator>();
 
         currentStamina = maxStamina;
+
+        speedParticles.Stop();
     }
 
     void Update()
@@ -152,7 +166,7 @@ public class PlayerController : MonoBehaviour
 
         #region Walk SFX
         
-        if (isMoving)
+        if (isMoving && controller.isGrounded)
         {
             walkSfxTimer -= Time.deltaTime;
             if (walkSfxTimer <= 0)
@@ -176,71 +190,6 @@ public class PlayerController : MonoBehaviour
             walkSfxTimer = 0f;
             walkSourceSfx.Stop();
         }
-        #endregion
-
-        #region Handles Crouching
-
-        Vector3 scale = transform.localScale;
-        scale.y = isCrouching ? crouchScaleY : 1f;
-        transform.localScale = scale;
-
-        #endregion
-
-        #region Handles Jumping
-        if (Input.GetButton("Jump") && canMove && controller.isGrounded && currentStamina >= 0.5f)
-        {
-            isJumping = true;
-            SoundManager.Instance.PlayAudio(jumpSfx, 1f, transform);
-        }
-        else
-        {
-            moveDirection.y = movementDirectionY;
-        }
-
-        // Lets player hold jump to jump higher
-        if (isJumping)
-        {
-            jumpPower += Time.deltaTime;
-            moveDirection.y = jumpPower * jumpMultiplier;
-
-            currentStamina -= staminaDrainRate * jumpStaminaLossMultiplier * Time.deltaTime;
-
-            if (jumpPower >= maxJumpTime || !Input.GetButton("Jump") || currentStamina <= 0.25f)
-            {
-                isFalling = true;
-                isJumping = false;
-                jumpPower = 0;
-            }
-        }
-        
-        // Applies gravity when in air, increases speed if falling  
-        if (!controller.isGrounded)
-        {
-            moveDirection.y -= gravity * (isFalling ? fallMultiplier : 1f) * Time.deltaTime;
-            canPlayLandSfx = true;
-            fallTime += Time.deltaTime;
-        } else isFalling = false;
-
-        if (controller.isGrounded && canPlayLandSfx)
-        {
-            // Volume and shake mag. of land is dependent on how long the players been falling
-            float landVolume = 0f;
-            float landShakeMagnitude = 0f;
-            if (fallTime >= fallThresholdTime)
-            {
-                landVolume = Mathf.Clamp01(fallTime * 0.5f);
-                landShakeMagnitude = Mathf.Clamp(fallTime, 0f, 5f);
-            }
-            SoundManager.Instance.PlayAudio(landSfx, landVolume, transform, 0);
-
-            // Screen Shake
-            ShakerInstance instance = CameraShakerHandler.Shake(landShake);
-            instance.MultiplyMagnitude(landShakeMagnitude * 1.5f, -1);
-
-            canPlayLandSfx = false;
-            fallTime = 0f;
-        }
-
         #endregion
 
         #region Handles Sprinting
@@ -296,6 +245,79 @@ public class PlayerController : MonoBehaviour
         #endregion
 
         controller.Move(moveDirection * Time.deltaTime);
+    }
+
+    void HandleCrouch()
+    {
+        Vector3 scale = transform.localScale;
+        scale.y = isCrouching ? crouchScaleY : 1f;
+        transform.localScale = scale;
+    }
+
+    void HandleJumping()
+    {
+        #region Handles Jumping
+        if (Input.GetButton("Jump") && canMove && controller.isGrounded && currentStamina >= 0.5f)
+        {
+            isJumping = true;
+            SoundManager.Instance.PlayAudio(jumpSfx, 1f, transform);
+        }
+        else
+        {
+            moveDirection.y = movementDirectionY;
+        }
+
+        // Lets player hold jump to jump higher
+        if (isJumping)
+        {
+            jumpPower += Time.deltaTime;
+            moveDirection.y = jumpPower * jumpMultiplier;
+
+            currentStamina -= staminaDrainRate * jumpStaminaLossMultiplier * Time.deltaTime;
+
+            if (jumpPower >= maxJumpTime || !Input.GetButton("Jump") || currentStamina <= 0.25f)
+            {
+                isFalling = true;
+                isJumping = false;
+                jumpPower = 0;
+            }
+        }
+        
+        // Applies gravity when in air, increases speed if falling  
+        if (!controller.isGrounded)
+        {
+            moveDirection.y -= gravity * (isFalling ? fallMultiplier : 1f) * Time.deltaTime;
+            canPlayLandSfx = true;
+            fallTime += Time.deltaTime;
+
+            if (fallTime > speedLinesTime && !isJumping) speedParticles.Play();
+        } else 
+        {
+            isFalling = false;
+            speedParticles.Stop();
+        }
+
+        if (controller.isGrounded && canPlayLandSfx)
+        {
+            // Volume and shake mag. of land is dependent on how long the players been falling
+            float landVolume = 0f;
+            float landShakeMagnitude = 0f;
+            if (fallTime >= fallThresholdTime)
+            {
+                landVolume = Mathf.Clamp01(fallTime * 0.5f);
+                landShakeMagnitude = Mathf.Clamp(fallTime, 0f, 5f);
+            }
+            SoundManager.Instance.PlayAudio(landSfx, landVolume, transform, 0);
+
+            // Screen Shake
+            ShakerInstance instance = CameraShakerHandler.Shake(landShake);
+            instance.MultiplyMagnitude(landShakeMagnitude * 1.5f, -1);
+
+            canPlayLandSfx = false;
+            fallTime = 0f;
+        }
+
+        #endregion
     }
 
     IEnumerator RegainStaminaDelay()

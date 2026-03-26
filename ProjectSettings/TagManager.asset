@@ -31,7 +31,7 @@ TagManager:
   - Border
   - Force Area
   - Weapon
-  - 
+  - SpeedLines
   - 
   - 
   - 
@@ -54,4 +54,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Foreground
+    uniqueID: 1005537829
     locked: 0
