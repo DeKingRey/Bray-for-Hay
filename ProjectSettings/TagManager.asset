@@ -18,6 +18,7 @@ TagManager:
   - Bush
   - Fall Zone
   - Door
+  - Camera Holder
   layers:
   - Default
   - TransparentFX

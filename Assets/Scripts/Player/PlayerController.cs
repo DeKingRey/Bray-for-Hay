@@ -19,6 +19,13 @@ public class PlayerController : MonoBehaviour
     [Header("Crouch Settings")]
     [SerializeField] private float crouchSpeed;
 
+    [Tooltip("Controller heights when crouched/uncrouched, 0 is standing, 1 is crouched")]
+    [SerializeField] private float[] crouchHeights;
+
+    [Tooltip("Camera y pos's when crouched/uncrouched, 0 is standing, 1 is crouched")]
+    [SerializeField] private float[] crouchCameraY;
+
+
     [Tooltip("How much smaller the player gets when crouching")]
     [SerializeField] private float crouchScaleY;
 
@@ -106,12 +113,14 @@ public class PlayerController : MonoBehaviour
     private float jumpPower;
     private bool canPlayLandSfx;
     private float fallTime = 0f;
+    private Transform camHolder;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
         staminaSlider = GameObject.FindWithTag("Stamina Slider").GetComponent<Slider>();
         anim = GetComponentInChildren<Animator>();
+        camHolder = GameObject.FindWithTag("Camera Holder").transform;
 
         currentStamina = maxStamina;
 
@@ -192,6 +201,8 @@ public class PlayerController : MonoBehaviour
         }
         #endregion
 
+        HandleCrouch();
+
         #region Handles Sprinting
 
         currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
@@ -244,18 +255,6 @@ public class PlayerController : MonoBehaviour
 
         #endregion
 
-        controller.Move(moveDirection * Time.deltaTime);
-    }
-
-    void HandleCrouch()
-    {
-        Vector3 scale = transform.localScale;
-        scale.y = isCrouching ? crouchScaleY : 1f;
-        transform.localScale = scale;
-    }
-
-    void HandleJumping()
-    {
         #region Handles Jumping
         if (Input.GetButton("Jump") && canMove && controller.isGrounded && currentStamina >= 0.5f)
         {
@@ -318,6 +317,23 @@ public class PlayerController : MonoBehaviour
         }
 
         #endregion
+
+        controller.Move(moveDirection * Time.deltaTime);
+    }
+
+    void HandleCrouch()
+    {
+        // Gets target height/camera y pos depending on whether crouching or not
+        float targetHeight = isCrouching ? crouchHeights[1] : crouchHeights[0];
+        float targetCameraY = isCrouching ? crouchCameraY[1] : crouchCameraY[0];
+
+        // Smoothly updates controller height
+        controller.height = Mathf.Lerp(controller.height, targetHeight, Time.deltaTime * 10f);
+
+        // Smoothly moves the camera
+        Vector3 camLocal = camHolder.localPosition;
+        camLocal.y = Mathf.Lerp(camLocal.y, targetCameraY, Time.deltaTime * 10f);
+        camHolder.localPosition = camLocal;
     }
 
     IEnumerator RegainStaminaDelay()

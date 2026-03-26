@@ -203,8 +203,14 @@ MonoBehaviour:
   gameOverState: 2
   walkSpeed: 4
   defaultSprintSpeed: 7
-  crouchSpeed: 2
   slideStrength: 8
+  crouchSpeed: 2
+  crouchHeights:
+  - 2
+  - 1
+  crouchCameraY:
+  - 0
+  - -0.5
   crouchScaleY: 0.5
   maxStamina: 15
   regainStaminaDelay: 1
@@ -971,7 +977,7 @@ GameObject:
   - component: {fileID: 2227824228837617366}
   m_Layer: 0
   m_Name: CamHolder
-  m_TagString: Untagged
+  m_TagString: Camera Holder
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
