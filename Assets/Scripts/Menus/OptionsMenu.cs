@@ -111,14 +111,14 @@ public class OptionsMenu : MonoBehaviour
 
     public void SetCamSensitivity(float value)
     {
-        camSensitivity.sensitivity = value;
+        if (camSensitivity != null) camSensitivity.sensitivity = value;
         PlayerPrefs.SetFloat("CamSensitivity", value);
         PlayerPrefs.Save();
     }
 
     public void SetMicSensitivity(float value)
     {
-        voiceDetector.micMultiplier = value;
+        if (voiceDetector != null) voiceDetector.micMultiplier = value;
         PlayerPrefs.SetFloat("MicSensitivity", value);
         PlayerPrefs.Save();
     }
@@ -127,7 +127,11 @@ public class OptionsMenu : MonoBehaviour
     {
         string selectedMic = Microphone.devices[index];
 
-        voiceDetector.selectedMic = selectedMic;
+        if (voiceDetector != null)
+        {
+            voiceDetector.selectedMic = selectedMic;
+            voiceDetector.MicrophoneToAudioClip();
+        }
         PlayerPrefs.SetString("MicInput", selectedMic);
         PlayerPrefs.Save();
     }

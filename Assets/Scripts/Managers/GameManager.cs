@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public GameState State;
+    public LevelType Level;
     public static event Action<GameState> OnGameStateChanged;
 
     public enum GameState
@@ -19,11 +20,22 @@ public class GameManager : MonoBehaviour
         LevelComplete
     }
 
+    public enum LevelType
+    {
+        Paddock,
+        Mountains,
+        Other
+    }
+
+    [SerializeField] private AudioClip gameOverSfx;
+
     private Animator gameOverAnim;
     private bool gameOver;
+    private bool previousGameOver;
 
     private Animator levelCompleteAnim;
     private bool levelComplete;
+    private bool previousLevelComplete;
 
     void Awake()
     {
@@ -44,11 +56,26 @@ public class GameManager : MonoBehaviour
         {
             GameObject gameOverUI = GameObject.FindWithTag("Game Over");
             if (gameOverUI != null) gameOverAnim = gameOverUI.GetComponent<Animator>();
+
+            // Causes fade out when you just lost the game
+            if (previousGameOver)
+            {
+                gameOverAnim.SetBool("previousGameOver", true);
+                previousGameOver = false;
+            }
         }
+
         if (!levelCompleteAnim)
         {
             GameObject levelCompleteUI = GameObject.FindWithTag("Level Complete");
             if (levelCompleteUI != null) levelCompleteAnim = levelCompleteUI.GetComponent<Animator>();
+
+            // Causes fade out to play when player transitions between levels (specifically only levels)
+            if (previousLevelComplete)
+            {
+                levelCompleteAnim.SetBool("previousComplete", true);
+                previousLevelComplete = false;
+            }
         }
 
         // Restarts level if space is pressed after game over
@@ -58,6 +85,8 @@ public class GameManager : MonoBehaviour
             {
                 ChangeState(GameState.Playing, 0);
                 gameOver = false;
+
+                previousGameOver = true;
                 LoadScene(0);
             }
         }
@@ -68,9 +97,12 @@ public class GameManager : MonoBehaviour
             {
                 ChangeState(GameState.Playing, 0);
                 levelComplete = false;
+
+                previousLevelComplete = true;
                 LoadScene(1);
             }
-        }  
+        }
+
     }
 
     public void ChangeState(GameState newState, float delay)
@@ -98,6 +130,8 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.GameOver:
                 gameOver = true;
+                Transform player = GameObject.FindWithTag("Player").GetComponent<Transform>();
+                SoundManager.Instance.PlayAudio(gameOverSfx, 0.4f, player, 0);
                 gameOverAnim.SetTrigger("Activate");
                 break;
             case GameState.Menu:
@@ -125,6 +159,11 @@ public class GameManager : MonoBehaviour
         if (loadSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
             SceneManager.LoadScene(loadSceneIndex);
-        } else SceneManager.LoadScene(0); // Loads initial scene when complete
+        } else
+        {
+            // Reloads menu when complete
+            ChangeState(GameState.Menu, 0f);
+            SceneManager.LoadScene(0);
+        }
     }
 }

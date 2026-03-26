@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using FirstGearGames.SmoothCameraShaker;
 
 public class VolumeDetector : MonoBehaviour
 {
@@ -31,6 +32,11 @@ public class VolumeDetector : MonoBehaviour
     [SerializeField] private float createSoundInterval = 0.15f;
     [SerializeField] private float maxNoiseRadius = 10f;
     [SerializeField] private float radiusMultiplier = 5f;
+
+    [Header("Screen Shake")]
+    [SerializeField] private ShakeData voiceShake;
+    [SerializeField] private float volumeShakeThreshold = 1f;
+    [SerializeField] private float shakeMultiplier = 5f;
     
     private float soundTimer = 0f;
     private float loudness;
@@ -60,12 +66,19 @@ public class VolumeDetector : MonoBehaviour
             loudness = VolumeFromMicrophone();
             float currentNoiseRadius = Mathf.Clamp(loudness * radiusMultiplier, 0, maxNoiseRadius);
 
+            // Screen Shake
+            if (loudness > volumeShakeThreshold)
+            {
+                ShakerInstance instance = CameraShakerHandler.Shake(voiceShake);
+                instance.MultiplyMagnitude(loudness * shakeMultiplier, -1);
+            }
+
             if (currentNoiseRadius > 0f) SoundManager.Instance.CreateSoundBubble(currentNoiseRadius);
             soundTimer = 0f;
         }
     }
 
-    void MicrophoneToAudioClip()
+    public void MicrophoneToAudioClip()
     {
         // Records mic audio constantly
         microphoneClip = Microphone.Start(selectedMic, true, 20, AudioSettings.outputSampleRate);

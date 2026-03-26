@@ -41,7 +41,7 @@ public class CollectHay : MonoBehaviour
                     if (!playCutscene)
                         GameManager.Instance.ChangeState(GameManager.GameState.LevelComplete, 0);
                     else cutscenePlayer.currentCutsceneIndex = cutsceneIndex;
-                    SoundManager.Instance.PlayAudio(collectSfx, 0.6f, transform);
+                    SoundManager.Instance.PlayAudio(collectSfx, 0.6f, transform, 0);
 
                     collectedHay = true;
                 }
@@ -53,7 +53,7 @@ public class CollectHay : MonoBehaviour
         } else  elapsedHoldTime = 0f;
 
         // Updates slider
-        holdSlider.value = elapsedHoldTime / hayHoldTime;
+        if (!collectedHay) holdSlider.value = elapsedHoldTime / hayHoldTime;
     }
 
     void OnTriggerEnter(Collider obj)

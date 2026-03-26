@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using FirstGearGames.SmoothCameraShaker;
 
 public class PlayerController : MonoBehaviour
 {
@@ -60,6 +61,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AudioClip jumpSfx;
     [SerializeField] private AudioClip landSfx;
 
+    [Tooltip("How long the player must be falling to play the land SFX")]
+    [SerializeField] private float fallThresholdTime = 0.5f; 
+
+    [Space(10)]
+    [SerializeField] private ShakeData landShake;
+
     [HideInInspector] public bool isHidden;
 
     private float walkSfxTimer = 0f;
@@ -86,6 +93,7 @@ public class PlayerController : MonoBehaviour
 
     private float jumpPower;
     private bool canPlayLandSfx;
+    private float fallTime = 0f;
 
     void Start()
     {
@@ -201,7 +209,6 @@ public class PlayerController : MonoBehaviour
             {
                 isFalling = true;
                 isJumping = false;
-                canPlayLandSfx = true;
                 jumpPower = 0;
             }
         }
@@ -210,12 +217,28 @@ public class PlayerController : MonoBehaviour
         if (!controller.isGrounded)
         {
             moveDirection.y -= gravity * (isFalling ? fallMultiplier : 1f) * Time.deltaTime;
+            canPlayLandSfx = true;
+            fallTime += Time.deltaTime;
         } else isFalling = false;
 
         if (controller.isGrounded && canPlayLandSfx)
         {
+            // Volume and shake mag. of land is dependent on how long the players been falling
+            float landVolume = 0f;
+            float landShakeMagnitude = 0f;
+            if (fallTime >= fallThresholdTime)
+            {
+                landVolume = Mathf.Clamp01(fallTime * 0.5f);
+                landShakeMagnitude = Mathf.Clamp(fallTime, 0f, 5f);
+            }
+            SoundManager.Instance.PlayAudio(landSfx, landVolume, transform, 0);
+
+            // Screen Shake
+            ShakerInstance instance = CameraShakerHandler.Shake(landShake);
+            instance.MultiplyMagnitude(landShakeMagnitude * 1.5f, -1);
+
             canPlayLandSfx = false;
-            SoundManager.Instance.PlayAudio(landSfx, 0.6f, transform);
+            fallTime = 0f;
         }
 
         #endregion

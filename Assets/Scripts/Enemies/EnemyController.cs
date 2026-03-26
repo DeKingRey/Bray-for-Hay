@@ -238,6 +238,8 @@ public class EnemyController : MonoBehaviour
         float duration = Random.Range(minDelayDuration, maxDelayDuration);
         if (distance <= minShootDistance) duration = minDelayDuration;
 
+        transform.LookAt(player);
+
         yield return new WaitForSeconds(duration);
         animator.SetTrigger("Attack");
     }

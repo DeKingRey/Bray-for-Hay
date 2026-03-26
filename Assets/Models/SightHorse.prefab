@@ -643,6 +643,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3988471327413187744}
   - component: {fileID: 3518257950470067017}
+  - component: {fileID: 1638803666787912650}
   m_Layer: 0
   m_Name: SightHorse
   m_TagString: Untagged
@@ -687,6 +688,18 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &1638803666787912650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4328580632435977754}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b3aacc9e9499054996a5b8cccc10c88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4719167102126559058
 GameObject:
   m_ObjectHideFlags: 0
