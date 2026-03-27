@@ -30,7 +30,7 @@ public class SoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource ambienceSource;
 
-    private AudioClip currentGameMusic;
+    public AudioClip currentGameMusic;
     private AudioClip currentAmbience;
 
     private MusicFade fader;
@@ -64,14 +64,15 @@ public class SoundManager : MonoBehaviour
         // Creates music state dict
         stateActions = new Dictionary<GameManager.GameState, Action>
         {
-            { GameManager.GameState.Playing, () => StartCoroutine(WaitForFade(fader.fadeDuration, currentGameMusic)) },
-            { GameManager.GameState.Menu, () => StartCoroutine(WaitForFade(fader.fadeDuration, menuMusic)) },
+            { GameManager.GameState.Playing, () => StartCoroutine(WaitForFade(currentGameMusic)) },
+            { GameManager.GameState.Menu, () => StartCoroutine(WaitForFade(menuMusic)) },
             { GameManager.GameState.LevelComplete, () => fader.StartFade(musicSource.volume, 0f, false) },
             { GameManager.GameState.GameOver, () => fader.StartFade(musicSource.volume, 0f, false) },
             { GameManager.GameState.Paused, () => fader.StartFade(musicSource.volume, dampVolume, true) }
         };
 
         GameManager.OnGameStateChanged += ChangeTrack;
+        GameManager.OnSceneChanged += ChangeSceneTrack;
 
         #region Applying Current Music
 
@@ -94,8 +95,8 @@ public class SoundManager : MonoBehaviour
         {
             currentGameMusic = newMusic;
             currentAmbience = newAmbience;
-            musicSource.clip = currentGameMusic;
-            fader.StartFade(0f, maxMusicVolume, false);
+            //musicSource.clip = currentGameMusic;
+            //fader.StartFade(0f, maxMusicVolume, false);
             
             ambienceSource.clip = currentAmbience;
             ambienceSource.Play();
@@ -114,20 +115,26 @@ public class SoundManager : MonoBehaviour
        GameManager.OnGameStateChanged -= ChangeTrack; 
     }
 
-    void ChangeTrack(GameManager.GameState state)
+    void ChangeSceneTrack(int sceneIndex)
     {
         AudioClip newMusic = null;
         AudioClip newAmbience = null;
 
         // Changes tracks depending on level type
-        if (GameManager.Instance.Level == GameManager.LevelType.Paddock)
+        if (sceneIndex > 3)
         {
-            newMusic = levelSounds[0].musicClip;
-            newAmbience = levelSounds[0].ambienceClip;
-        } else if (GameManager.Instance.Level == GameManager.LevelType.Mountains)
-        {
+            // Mountains Music
             newMusic = levelSounds[1].musicClip;
             newAmbience = levelSounds[1].ambienceClip;
+        } else if (sceneIndex > 0)
+        {
+            // Paddock Music
+            newMusic = levelSounds[0].musicClip;
+            newAmbience = levelSounds[0].ambienceClip;
+        } else 
+        {
+            // Main Menu
+            newMusic = levelSounds[2].musicClip;
         }
 
         // Only switches if different
@@ -135,11 +142,15 @@ public class SoundManager : MonoBehaviour
         {
             currentGameMusic = newMusic;
             currentAmbience = newAmbience;
+            StartCoroutine(WaitForFade(currentGameMusic));
             
             ambienceSource.clip = currentAmbience;
             ambienceSource.Play();
         }
+    }
 
+    void ChangeTrack(GameManager.GameState state)
+    {
         // Smoothly fades between states when states are changed
         if (stateActions.TryGetValue(state, out var action))
         {
@@ -148,6 +159,7 @@ public class SoundManager : MonoBehaviour
             {
                 justPaused = false;
                 fader.StartFade(musicSource.volume, maxMusicVolume, true);
+
                 return;
             } else justPaused = false;
             if (state == GameManager.GameState.Paused)
@@ -158,15 +170,18 @@ public class SoundManager : MonoBehaviour
     }
 
     // Waits for fade before switching tracks
-    private IEnumerator WaitForFade(float duration, AudioClip clip)
+    private IEnumerator WaitForFade(AudioClip clip)
     {
         // Fades out
-        fader.StartFade(musicSource.volume, 0, false);
-        yield return new WaitForSeconds(duration);
+        fader.StartFade(musicSource.volume, 0f, false);
+        yield return new WaitForSeconds(fader.fadeDuration);
+
+        currentGameMusic = clip;
         musicSource.clip = clip;
+        musicSource.Play();
 
         // Fades in
-        fader.StartFade(0, maxMusicVolume, false);
+        fader.StartFade(0f, maxMusicVolume, false);
     }
 
     // Instantiates an object to play a sound effect

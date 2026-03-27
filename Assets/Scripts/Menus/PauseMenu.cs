@@ -57,7 +57,7 @@ public class PauseMenu : MonoBehaviour
 
     public void LoadMenu()
     {
-        GameManager.Instance.ChangeState(GameManager.GameState.Menu, 0f);
+        GameManager.Instance.ChangeState(GameManager.GameState.Menu, 0.5f);
 
         Time.timeScale = 1f;
         isPaused = false;
@@ -66,7 +66,7 @@ public class PauseMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        SceneManager.LoadScene("MainMenu");
+        GameManager.Instance.LoadScene(-1, 0.5f);
     }
 
     public void Quit()

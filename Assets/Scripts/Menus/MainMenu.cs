@@ -13,8 +13,8 @@ public class MainMenu : MonoBehaviour
 
     public void Play()
     {
-        GameManager.Instance.ChangeState(GameManager.GameState.Playing, 0);
-        SceneManager.LoadScene(1); // Loads first level
+        GameManager.Instance.ChangeState(GameManager.GameState.Playing, 0.5f);
+        GameManager.Instance.LoadScene(1, 0.5f); // Loads first level
     }
 
     public void Quit()

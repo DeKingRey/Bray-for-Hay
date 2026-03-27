@@ -52,14 +52,17 @@ MonoBehaviour:
     m_Bits: 256
   audioPrefab: {fileID: 1311133641536352614, guid: 695306ec49e424a40b2cd8229d689d62, type: 3}
   dampVolume: 0.25
-  maxMusicVolume: 0
+  maxMusicVolume: 0.5
   levelSounds:
   - musicClip: {fileID: 8300000, guid: ef664c784e00ea847adb191e7fcdf815, type: 3}
     ambienceClip: {fileID: 8300000, guid: f881808ea4c5d0b40ac398ca1e9651ff, type: 3}
   - musicClip: {fileID: 8300000, guid: 2078f7d3640d8524f8542571bbd2fbb2, type: 3}
     ambienceClip: {fileID: 8300000, guid: b9367dfe3cc1bea42b67feae67247317, type: 3}
+  - musicClip: {fileID: 8300000, guid: 99e183539a22b024b8b54c78f82ff5f4, type: 3}
+    ambienceClip: {fileID: 8300000, guid: f881808ea4c5d0b40ac398ca1e9651ff, type: 3}
   menuMusic: {fileID: 8300000, guid: 99e183539a22b024b8b54c78f82ff5f4, type: 3}
   ambienceSource: {fileID: 6121980693447995023}
+  currentGameMusic: {fileID: 0}
 --- !u!114 &279375562499924597
 MonoBehaviour:
   m_ObjectHideFlags: 0

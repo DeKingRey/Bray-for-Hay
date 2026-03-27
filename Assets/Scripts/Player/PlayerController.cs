@@ -79,6 +79,7 @@ public class PlayerController : MonoBehaviour
 
     [Space(10)]
     [SerializeField] private ShakeData landShake;
+    [SerializeField] private ParticleSystem landParticles;
 
     [Space(5)]
 
@@ -126,6 +127,7 @@ public class PlayerController : MonoBehaviour
         currentStamina = maxStamina;
 
         speedParticles.Stop();
+        landParticles.Stop();
     }
 
     void Update()
@@ -306,9 +308,10 @@ public class PlayerController : MonoBehaviour
             float landShakeMagnitude = 0f;
             if (fallTime >= fallThresholdTime)
             {
-                landVolume = Mathf.Clamp01(fallTime * 0.5f);
                 landShakeMagnitude = Mathf.Clamp(fallTime, 0f, 5f);
+                landParticles.Play();
             }
+            landVolume = Mathf.Clamp01(fallTime * 0.5f);
             SoundManager.Instance.PlayAudio(landSfx, landVolume, transform, 0);
 
             // Screen Shake

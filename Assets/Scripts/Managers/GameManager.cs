@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public GameState State;
     public LevelType Level;
     public static event Action<GameState> OnGameStateChanged;
+    public static event Action<int> OnSceneChanged;
 
     public enum GameState
     {
@@ -37,6 +38,8 @@ public class GameManager : MonoBehaviour
     private bool levelComplete;
     private bool previousLevelComplete;
 
+    private bool fadeOut = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -48,6 +51,29 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.activeSceneChanged += OnActiveSceneChanged;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+    }
+
+    private void OnActiveSceneChanged(Scene oldScene, Scene newScene)
+    {
+        if (fadeOut)
+        {
+            Animator fadeAnim = GameObject.FindWithTag("Fade Screen").GetComponent<Animator>();
+            fadeAnim.SetTrigger("FadeOut");
+            fadeOut = false;
+        }
+
+        // Event Signal
+        OnSceneChanged?.Invoke(newScene.buildIndex);
     }
 
     void Update()
@@ -149,8 +175,23 @@ public class GameManager : MonoBehaviour
     /// Loads scene depending on index to add
     /// If next level is needed to be loaded then index to add = 1
     /// If current scene needs to be reloaded index to add = 0
-    public void LoadScene(int indexToAdd)
+    public void LoadScene(int indexToAdd, float delay = 0f)
     {
+        StartCoroutine(TransitionToLevel(indexToAdd, delay));
+    }
+
+    private IEnumerator TransitionToLevel(int indexToAdd, float delay)
+    {
+        // Will fade in/out to transition between scenes
+        if (delay > 0f) 
+        {
+            Animator fadeAnim = GameObject.FindWithTag("Fade Screen").GetComponent<Animator>();
+            fadeAnim.SetTrigger("FadeIn");
+            fadeOut = true;
+        }
+
+        yield return new WaitForSeconds(delay);
+        
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
 
         int loadSceneIndex = currentSceneIndex + indexToAdd;
