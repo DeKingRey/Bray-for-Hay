@@ -9249,7 +9249,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Move - WASD \r\nJump - Space  \r\nSprint - Left Shift\nCrouch - Left Control
-    \r\nPause - Escape  \r\nBRAY - Figure it out...\n"
+    \r\nPause - Escape\nCollect Hay - E  \r\nBRAY - Figure it out...\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4ce689a696b45884f9ccc6dce81e1fb6, type: 2}
   m_sharedMaterial: {fileID: -1441720814942023319, guid: 4ce689a696b45884f9ccc6dce81e1fb6, type: 2}

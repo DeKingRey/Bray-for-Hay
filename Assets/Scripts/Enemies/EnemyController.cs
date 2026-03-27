@@ -90,6 +90,8 @@ public class EnemyController : MonoBehaviour
     private Animator animator;
     private float walkSoundTimer = 0f;
 
+    private ParticleSystem knockoutParticles;
+
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -97,9 +99,13 @@ public class EnemyController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         enemyCollider = GetComponent<Collider>();
         animator = GetComponentInChildren<Animator>();
+        knockoutParticles = GetComponentInChildren<ParticleSystem>();
+
+        knockoutParticles.Stop();
 
         agent.destination = path.GetCurrentWaypoint();
         player = GameObject.FindWithTag("Player").transform;
+        
 
         DisableRagdoll();
     }
@@ -300,6 +306,9 @@ public class EnemyController : MonoBehaviour
         agent.enabled = false;
         enemyCollider.isTrigger = true;
         rb.isKinematic = true;
+
+        knockoutParticles.Play();
+
         if (animator) animator.enabled = false;
         UpdateIndicators(true, false, false); // Sets indicator to idle
 

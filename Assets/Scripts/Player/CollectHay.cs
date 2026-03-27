@@ -10,6 +10,7 @@ public class CollectHay : MonoBehaviour
     [SerializeField] private Slider holdSlider;
     [SerializeField] private Animator sliderAnim;
     [SerializeField] private AudioClip collectSfx;
+    [SerializeField] private ParticleSystem collectParticles;
 
     [Space(10)]
 
@@ -22,17 +23,23 @@ public class CollectHay : MonoBehaviour
     private PlayerCutscenes cutscenePlayer;
     private bool collectedHay = false;
 
+    private Camera mainCam;
+
     void Start()
     {
         cutscenePlayer = FindObjectOfType<PlayerCutscenes>();
+        collectParticles = GetComponentInChildren<ParticleSystem>();
+        mainCam = Camera.main;
+        collectParticles.Stop();
     }
 
     void Update()
     {
         // Player has to hold down E to collect hay
-        if (playerTouching)
+        if (playerTouching && GameManager.Instance.State == GameManager.GameState.Playing)
         {
-            if (Input.GetKey(KeyCode.E))
+            RaycastHit hit;
+            if (Input.GetKey(KeyCode.E) && Physics.SphereCast(mainCam.transform.position, 0.1f, mainCam.transform.forward, out hit))
             {
                 elapsedHoldTime += Time.deltaTime;
                 // Loads next scene once completed unless there is a cutscene to play
@@ -43,6 +50,7 @@ public class CollectHay : MonoBehaviour
                     else cutscenePlayer.currentCutsceneIndex = cutsceneIndex;
                     SoundManager.Instance.PlayAudio(collectSfx, 0.6f, transform, 0);
 
+                    collectParticles.Play();
                     collectedHay = true;
                 }
             } else 

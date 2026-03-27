@@ -2086,7 +2086,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Move - WASD \r\nJump - Space  \r\nSprint - Left Shift\nCrouch - Left Control
-    \r\nPause - Escape  \r\nBRAY - Figure it out...\n"
+    \r\nPause - Escape  \r\nCollect Hay - E\nBRAY - Figure it out...\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4ce689a696b45884f9ccc6dce81e1fb6, type: 2}
   m_sharedMaterial: {fileID: -1441720814942023319, guid: 4ce689a696b45884f9ccc6dce81e1fb6, type: 2}
@@ -5973,6 +5973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clickSfx: {fileID: 8300000, guid: 51cfa961027d946469ff145edab47e56, type: 3}
   clickVolume: 1
+  source: {fileID: 0}
 --- !u!82 &2564825613582896966
 AudioSource:
   m_ObjectHideFlags: 0

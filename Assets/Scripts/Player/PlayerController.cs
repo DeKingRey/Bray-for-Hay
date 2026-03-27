@@ -113,6 +113,7 @@ public class PlayerController : MonoBehaviour
     private float jumpPower;
     private bool canPlayLandSfx;
     private float fallTime = 0f;
+    private float sprintTime = 0f;
     private Transform camHolder;
 
     void Start()
@@ -212,12 +213,15 @@ public class PlayerController : MonoBehaviour
         {
             currentStamina -= staminaDrainRate * Time.deltaTime;
 
+            sprintTime += Time.deltaTime;
+
             if (isMoving) 
                 UpdateAnimator(false, false, true); // Sets anim to running
             else UpdateAnimator(true, false, false); // Sets anim to idle
         } 
         else
         {
+            sprintTime = 0f;
             if (isMoving) 
                 UpdateAnimator(false, true, false); // Sets anim to walking
             else UpdateAnimator(true, false, false); // Sets anim to idle
@@ -293,7 +297,6 @@ public class PlayerController : MonoBehaviour
         } else 
         {
             isFalling = false;
-            speedParticles.Stop();
         }
 
         if (controller.isGrounded && canPlayLandSfx)
@@ -315,6 +318,18 @@ public class PlayerController : MonoBehaviour
             canPlayLandSfx = false;
             fallTime = 0f;
         }
+
+        #endregion
+
+        #region Speed Lines
+
+        // Adds sprint lines either if player is sprinting or the player is falling
+        if (isSprinting && currentStamina > 0f || !controller.isGrounded && !isJumping)
+        {  
+            // Only plays if player has been sprinting/falling for a certain amount of time
+            if (fallTime > speedLinesTime || sprintTime > speedLinesTime)
+                speedParticles.Play();
+        } else speedParticles.Stop();
 
         #endregion
 
